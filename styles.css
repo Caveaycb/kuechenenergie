@@ -1290,6 +1290,10 @@ input[type="range"]::-moz-range-thumb {
   isolation: isolate;
 }
 
+.recipe-placeholder[hidden] {
+  display: none;
+}
+
 .recipe-placeholder::before {
   position: absolute;
   z-index: -1;
