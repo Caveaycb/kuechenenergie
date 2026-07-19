@@ -1271,6 +1271,307 @@ input[type="range"]::-moz-range-thumb {
   min-width: 0;
 }
 
+.recipe-placeholder {
+  position: relative;
+  min-height: 650px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(270px, .88fr);
+  gap: clamp(24px, 4vw, 58px);
+  align-items: center;
+  overflow: hidden;
+  padding: clamp(38px, 5vw, 70px);
+  background:
+    radial-gradient(circle at 95% 8%, rgba(0, 144, 212, 0.14), transparent 34%),
+    radial-gradient(circle at 3% 100%, rgba(233, 94, 15, 0.12), transparent 35%),
+    var(--paper);
+  border: 1px solid rgba(16, 16, 16, 0.08);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  isolation: isolate;
+}
+
+.recipe-placeholder::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  opacity: 0.25;
+  background-image: radial-gradient(circle, rgba(16, 16, 16, 0.16) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+  -webkit-mask-image: linear-gradient(100deg, transparent 0 47%, #000 80%, transparent 100%);
+  mask-image: linear-gradient(100deg, transparent 0 47%, #000 80%, transparent 100%);
+}
+
+.placeholder-copy {
+  position: relative;
+  z-index: 3;
+}
+
+.placeholder-copy h2 {
+  max-width: 570px;
+  margin: 0;
+  font-size: clamp(36px, 4.2vw, 58px);
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+.placeholder-copy h2 em {
+  color: var(--orange);
+  font-style: normal;
+}
+
+.placeholder-copy > p:not(.section-kicker, .placeholder-hint) {
+  max-width: 520px;
+  margin: 25px 0 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.placeholder-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 27px;
+}
+
+.placeholder-steps span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 35px;
+  padding: 6px 10px 6px 6px;
+  color: #4f5759;
+  background: rgba(255, 255, 255, .74);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.placeholder-steps b {
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  color: var(--paper);
+  background: var(--ink);
+  border-radius: 50%;
+  font-size: 9px;
+}
+
+.placeholder-steps span:last-child b {
+  background: var(--blue);
+}
+
+.placeholder-hint {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  margin: 27px 0 0;
+  padding-top: 15px;
+  color: #667073;
+  border-top: 1px solid rgba(16, 16, 16, .13);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.placeholder-hint svg {
+  width: 19px;
+  height: 19px;
+  fill: var(--orange);
+}
+
+.placeholder-art {
+  position: relative;
+  width: min(100%, 390px);
+  aspect-ratio: 1;
+  justify-self: end;
+  border-radius: 43% 57% 58% 42% / 44% 40% 60% 56%;
+  background:
+    radial-gradient(circle at 44% 37%, rgba(0, 144, 212, .32), transparent 25%),
+    linear-gradient(145deg, #0f1011, #25282a);
+  box-shadow: 0 30px 60px rgba(16, 16, 16, .22), inset 0 0 0 1px rgba(255, 255, 255, .08);
+  animation: placeholder-blob 7s ease-in-out infinite;
+}
+
+.placeholder-art::before {
+  position: absolute;
+  inset: 11%;
+  content: "";
+  border: 1px solid rgba(255, 255, 255, .13);
+  border-radius: 50%;
+}
+
+.placeholder-orbit {
+  position: absolute;
+  inset: 4%;
+  border: 1px solid rgba(0, 144, 212, .3);
+  border-radius: 50%;
+  animation: placeholder-orbit 13s linear infinite;
+}
+
+.placeholder-orbit i {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+}
+
+.placeholder-orbit i:nth-child(1) {
+  top: 8%;
+  left: 19%;
+  width: 11px;
+  height: 11px;
+  background: var(--orange);
+  box-shadow: 0 0 17px rgba(233, 94, 15, .66);
+}
+
+.placeholder-orbit i:nth-child(2) {
+  top: 36%;
+  right: -4px;
+  width: 7px;
+  height: 7px;
+  background: var(--paper);
+}
+
+.placeholder-orbit i:nth-child(3) {
+  bottom: 3%;
+  left: 36%;
+  width: 9px;
+  height: 9px;
+  background: #f4ba37;
+}
+
+.placeholder-plate {
+  position: absolute;
+  z-index: 3;
+  left: 14%;
+  bottom: 20%;
+  width: 72%;
+  height: 18%;
+  background: linear-gradient(180deg, #fff 0 24%, #dbe2e5 25% 68%, #aeb8bd 100%);
+  border: 5px solid rgba(255, 255, 255, .88);
+  border-radius: 50%;
+  box-shadow: 0 22px 25px rgba(0, 0, 0, .32);
+}
+
+.placeholder-cloche {
+  position: absolute;
+  z-index: 4;
+  left: 22%;
+  bottom: 30%;
+  width: 56%;
+  height: 29%;
+  background: linear-gradient(145deg, #fff 3%, #dde5e8 46%, #8c999f 100%);
+  border-radius: 150px 150px 12px 12px;
+  box-shadow: inset 10px 8px 18px rgba(255, 255, 255, .7), 0 16px 25px rgba(0, 0, 0, .25);
+  animation: placeholder-cloche 4.8s ease-in-out infinite;
+}
+
+.placeholder-cloche::after {
+  position: absolute;
+  left: -4%;
+  bottom: -7px;
+  width: 108%;
+  height: 12px;
+  content: "";
+  background: linear-gradient(180deg, #f8fafa, #9ba6aa);
+  border-radius: 999px;
+}
+
+.placeholder-cloche i {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  width: 34px;
+  height: 22px;
+  background: linear-gradient(145deg, #fff, #9aa6aa);
+  border-radius: 18px 18px 7px 7px;
+  transform: translateX(-50%);
+}
+
+.placeholder-ingredient {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 16px;
+  box-shadow: 0 14px 25px rgba(0, 0, 0, .24);
+  font-size: 24px;
+  animation: placeholder-float 4.3s ease-in-out infinite;
+}
+
+.placeholder-broccoli { top: 14%; left: 5%; transform: rotate(-9deg); }
+.placeholder-lemon { top: 7%; right: 14%; animation-delay: -1.4s; }
+.placeholder-pepper { right: 3%; bottom: 16%; animation-delay: -2.7s; }
+
+.placeholder-bolt {
+  position: absolute;
+  z-index: 7;
+  right: 24%;
+  bottom: 25%;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  background: var(--orange);
+  border: 5px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 14px 25px rgba(0, 0, 0, .24), 0 0 24px rgba(233, 94, 15, .42);
+  animation: placeholder-pulse 2.5s ease-in-out infinite;
+}
+
+.placeholder-bolt svg {
+  width: 22px;
+  height: 31px;
+  fill: var(--paper);
+}
+
+.placeholder-spark {
+  position: absolute;
+  z-index: 5;
+  color: var(--paper);
+  animation: placeholder-spark 2.4s ease-in-out infinite;
+}
+
+.placeholder-spark-one { top: 27%; right: 8%; font-size: 20px; }
+.placeholder-spark-two { bottom: 11%; left: 21%; color: var(--blue); font-size: 13px; animation-delay: -1.2s; }
+
+@keyframes placeholder-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes placeholder-blob {
+  0%, 100% { border-radius: 43% 57% 58% 42% / 44% 40% 60% 56%; transform: translateY(0); }
+  50% { border-radius: 54% 46% 44% 56% / 50% 57% 43% 50%; transform: translateY(-7px); }
+}
+
+@keyframes placeholder-cloche {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-9px) rotate(1deg); }
+}
+
+@keyframes placeholder-float {
+  0%, 100% { translate: 0 0; rotate: -3deg; }
+  50% { translate: 0 -11px; rotate: 4deg; }
+}
+
+@keyframes placeholder-pulse {
+  0%, 100% { transform: scale(.94) rotate(3deg); }
+  50% { transform: scale(1.07) rotate(-2deg); }
+}
+
+@keyframes placeholder-spark {
+  0%, 100% { opacity: .3; transform: scale(.7); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
 .recipe-card {
   overflow: hidden;
 }
@@ -2297,6 +2598,18 @@ footer small {
   .hero-data-energy { right: -4px; bottom: 28px; }
   .hero-data-match { top: 50px; right: -3px; min-width: 0; }
   .hero-data-match strong { font-size: 9px; }
+  .recipe-placeholder {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    gap: 34px;
+    padding: 34px 23px 30px;
+    border-radius: 23px;
+  }
+  .placeholder-copy h2 { font-size: clamp(34px, 10vw, 43px); }
+  .placeholder-copy > p:not(.section-kicker, .placeholder-hint) { margin-top: 20px; font-size: 14px; }
+  .placeholder-steps { gap: 6px; margin-top: 22px; }
+  .placeholder-hint { margin-top: 22px; }
+  .placeholder-art { width: min(100%, 285px); justify-self: center; }
   .config-panel { padding: 21px 18px; border-radius: 23px; }
   .course-segmented { grid-template-columns: 1fr 1fr; gap: 3px; }
   .two-columns { grid-template-columns: 1fr; gap: 16px; }
@@ -2362,6 +2675,15 @@ footer small {
   .hero-data,
   .hero-data > span::after,
   .hero-spark {
+    animation: none !important;
+  }
+
+  .placeholder-art,
+  .placeholder-orbit,
+  .placeholder-cloche,
+  .placeholder-ingredient,
+  .placeholder-bolt,
+  .placeholder-spark {
     animation: none !important;
   }
 

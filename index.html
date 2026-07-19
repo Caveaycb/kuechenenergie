@@ -269,7 +269,43 @@
 
         <section class="result-area" id="result-area" aria-busy="false" aria-label="Rezeptergebnis">
           <p class="sr-only" id="result-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
-          <div class="recipe-card" id="recipe-card">
+          <div class="recipe-placeholder" id="recipe-placeholder">
+            <div class="placeholder-copy">
+              <p class="section-kicker">DEIN TELLER · DEINE ENERGIE</p>
+              <h2>Noch ist der Teller leer. <br /><em>Aber nicht mehr lange.</em></h2>
+              <p>
+                Sag uns, worauf du Appetit hast. Wir bringen Kalorien, Protein,
+                Zubereitungszeit und Küchenenergie für dich zusammen.
+              </p>
+              <div class="placeholder-steps" aria-label="So funktioniert Küchenenergie">
+                <span><b>1</b> Ziele wählen</span>
+                <span><b>2</b> Vorlieben setzen</span>
+                <span><b>3</b> Rezept servieren</span>
+              </div>
+              <p class="placeholder-hint">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-13h-6z" /></svg>
+                Erst nach deinem Klick wird ein Rezept ausgewählt.
+              </p>
+            </div>
+
+            <div class="placeholder-art" aria-hidden="true">
+              <span class="placeholder-orbit"><i></i><i></i><i></i></span>
+              <span class="placeholder-ingredient placeholder-broccoli">🥦</span>
+              <span class="placeholder-ingredient placeholder-lemon">🍋</span>
+              <span class="placeholder-ingredient placeholder-pepper">🌶️</span>
+              <span class="placeholder-spark placeholder-spark-one">✦</span>
+              <span class="placeholder-spark placeholder-spark-two">●</span>
+              <span class="placeholder-plate"></span>
+              <span class="placeholder-cloche">
+                <i></i>
+              </span>
+              <span class="placeholder-bolt">
+                <svg viewBox="0 0 40 58"><path d="M23.8 2 5 31.8h13.2L14.7 56 35 24.1H21.9L23.8 2Z" /></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="recipe-card" id="recipe-card" hidden>
             <div class="recipe-visual" id="recipe-visual">
               <div class="visual-topline">
                 <span class="match-badge" id="match-badge">

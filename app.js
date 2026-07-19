@@ -80,6 +80,7 @@ const energyBoosters = {
 
 const form = document.querySelector("#meal-form");
 const recipeCard = document.querySelector("#recipe-card");
+const recipePlaceholder = document.querySelector("#recipe-placeholder");
 const noResult = document.querySelector("#no-result");
 const resultArea = document.querySelector("#result-area");
 const caloriesMinInput = document.querySelector("#calories-min");
@@ -437,6 +438,7 @@ function renderMeal(meal) {
   const { recipe, macros, config, match } = meal;
 
   recipeCard.hidden = false;
+  recipePlaceholder.hidden = true;
   noResult.hidden = true;
   document.querySelector("#recipe-visual").dataset.theme = recipe.theme;
   document.querySelector("#match-value").textContent = match;
@@ -490,8 +492,19 @@ function renderMeal(meal) {
 function showNoResult() {
   currentMeal = null;
   recipeCard.hidden = true;
+  recipePlaceholder.hidden = true;
   noResult.hidden = false;
   document.querySelector("#result-announcement").textContent = "Kein realistischer Rezepttreffer für die aktuelle Auswahl.";
+  resultArea.setAttribute("aria-busy", "false");
+}
+
+function showRecipePlaceholder() {
+  currentMeal = null;
+  servings = 1;
+  recipeCard.hidden = true;
+  noResult.hidden = true;
+  recipePlaceholder.hidden = false;
+  document.querySelector("#result-announcement").textContent = "";
   resultArea.setAttribute("aria-busy", "false");
 }
 
@@ -787,7 +800,7 @@ document.querySelector("#reset-config").addEventListener("click", () => {
   form.reset();
   saveEnergyPreferences();
   updateControls();
-  generateMeal();
+  showRecipePlaceholder();
   showToast("Auswahl zurückgesetzt");
 });
 
@@ -835,4 +848,4 @@ savedDialog.addEventListener("click", (event) => {
 restoreEnergyPreferences();
 updateControls();
 updateSavedList();
-renderMeal(adaptRecipe(recipeDatabase[0], getConfig()));
+showRecipePlaceholder();
