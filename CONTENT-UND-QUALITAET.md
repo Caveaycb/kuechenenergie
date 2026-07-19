@@ -6,8 +6,9 @@
   eigener Zutatenliste, passender Zubereitung und dokumentierter Herkunft.
 - Änderungen an Portionsbasis, Proteinmenge oder Energiebeilage sind
   **adaptive Varianten** und werden nicht als neue Grundrezepte gezählt.
-- Der Pilot umfasst 100 Grundrezepte: 15 Vorspeisen, 65 Hauptgerichte und
-  20 Desserts. Der nächste Ausbau erfolgt erst nach der Pilotfreigabe.
+- Der Katalog umfasst 600 Grundrezepte: 105 Vorspeisen, 395 Hauptgerichte und
+  100 Desserts. 30 davon gehören zum separat recherchierten Küchenstil
+  **Typisch sächsisch**.
 
 ## Automatische Qualitätsprüfung
 
@@ -40,7 +41,7 @@ verantwortliche Person folgende Punkte bestätigt hat:
 7. Geschmack, Konsistenz und Anrichtung wurden plausibilisiert.
 8. Makro-Varianten passen kulinarisch zum Grundgericht.
 
-Der Pilotstatus aller 100 Rezepte lautet zunächst `pending`. Menschliche
+Der Status aller 600 Rezepte lautet zunächst `pending`. Menschliche
 Freigaben sollen mit Datum, Kürzel und optionaler Änderungsnotiz dokumentiert
 werden.
 
@@ -58,7 +59,9 @@ werden.
 
 ## Geplanter Ausbau
 
-1. 100 Grundrezepte technisch und redaktionell pilotieren.
-2. Nutzungsdaten und Rückmeldungen nach Rezeptfamilie auswerten.
-3. Auf 250 Grundrezepte erweitern und schwache Familien ersetzen.
-4. Erst nach stabiler Freigabe auf 500 bis 600 Grundrezepte skalieren.
+1. Die 600 Grundrezepte technisch prüfen und nach Rezeptfamilie stichprobenartig
+   nachkochen.
+2. Die 30 sächsischen Rezepte mit regionalen Fachleuten oder Gastronomiebetrieben
+   abgleichen.
+3. Nutzungsdaten und Rückmeldungen nach Rezeptfamilie auswerten.
+4. Schwache oder missverständliche Gerichte vor jedem weiteren Ausbau ersetzen.

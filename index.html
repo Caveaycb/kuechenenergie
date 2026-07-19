@@ -24,7 +24,7 @@
       </a>
 
       <div class="header-actions">
-        <span class="header-note"><strong id="header-recipe-count">100</strong> Grundrezepte. Über 4.000 passende Varianten.</span>
+        <span class="header-note"><strong id="header-recipe-count">600</strong> Grundrezepte. Über 24.000 passende Varianten.</span>
         <button class="button button-quiet saved-trigger" id="open-saved" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z" /></svg>
           Merkliste <span class="saved-count" id="saved-count">0</span>
@@ -40,7 +40,7 @@
         </div>
         <p class="intro-copy">
           Wähle deine Zielwerte und Vorlieben. Küchenenergie findet daraus ein
-          vollständiges Rezept aus 100 eigenentwickelten Grundgerichten – alltagstauglich,
+          vollständiges Rezept aus 600 eigenentwickelten Grundgerichten – alltagstauglich,
           abwechslungsreich und passend zu deinen Makros.
         </p>
       </section>
@@ -148,6 +148,7 @@
                 <span class="select-wrap">
                   <select id="cuisine" name="cuisine">
                     <option value="all">Überrasch mich</option>
+                    <option value="saechsisch">Typisch sächsisch</option>
                     <option value="deutsch">Deutsch &amp; bodenständig</option>
                     <option value="mediterran">Mediterran</option>
                     <option value="asiatisch">Asiatisch</option>
@@ -226,7 +227,7 @@
               <span>Meine Küchenenergie berechnen</span>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5" /></svg>
             </button>
-            <p class="form-hint" id="available-count" aria-live="polite">100 Grundrezepte mit adaptiven Varianten</p>
+            <p class="form-hint" id="available-count" aria-live="polite">600 Grundrezepte mit adaptiven Varianten</p>
           </form>
         </aside>
 
@@ -406,7 +407,7 @@
     <footer>
       <span>Küchenenergie</span>
       <p>Fitnessküche, die zu deinem Alltag passt.</p>
-      <small>100 eigenentwickelte Grundrezepte ohne übernommene Fremdtexte oder Fremdbilder. Nährwerte sind alltagstaugliche Näherungswerte und können je nach Produkt abweichen.</small>
+      <small>600 eigenentwickelte Grundrezepte ohne übernommene Fremdtexte oder Fremdbilder. Nährwerte sind alltagstaugliche Näherungswerte und können je nach Produkt abweichen.</small>
     </footer>
 
     <dialog class="saved-dialog" id="saved-dialog">
@@ -422,6 +423,7 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="recipe-catalog.js"></script>
+    <script src="recipe-catalog-extension.js"></script>
     <script src="recipe-quality.js"></script>
     <script src="recipe-visuals.js"></script>
     <script src="nutrition-engine.js"></script>

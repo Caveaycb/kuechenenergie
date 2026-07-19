@@ -125,7 +125,7 @@ function recipeSearchText(recipe) {
   return normalizeSearchText([
     recipe.title,
     recipe.description,
-    recipe.cuisine,
+    cuisineLabel(recipe.cuisine),
     courseLabel(recipe.course),
     dietLabel(recipe.diet),
     ...(recipe.ingredients || []).map((ingredient) => ingredient.name)
@@ -371,6 +371,12 @@ function courseLabel(course) {
   return "Hauptspeise";
 }
 
+function cuisineLabel(cuisine) {
+  if (cuisine === "saechsisch") return "Typisch sächsisch";
+  if (cuisine === "klassisch") return "Modern & klassisch";
+  return cuisine.charAt(0).toLocaleUpperCase("de-DE") + cuisine.slice(1);
+}
+
 function renderIngredients() {
   const list = document.querySelector("#ingredient-list");
   list.innerHTML = currentMeal.ingredients.map((ingredient, index) => {
@@ -443,7 +449,7 @@ function renderMeal(meal) {
     document.querySelector("#food-accent-one").textContent = visual.accentOne;
     document.querySelector("#food-accent-two").textContent = visual.accentTwo;
   }
-  document.querySelector("#recipe-cuisine").textContent = `${courseLabel(recipe.course).toUpperCase()} · ${recipe.cuisine.toUpperCase()} · ${dietLabel(recipe.diet).toUpperCase()}`;
+  document.querySelector("#recipe-cuisine").textContent = `${courseLabel(recipe.course).toUpperCase()} · ${cuisineLabel(recipe.cuisine).toUpperCase()} · ${dietLabel(recipe.diet).toUpperCase()}`;
   const recipeTitle = document.querySelector("#recipe-title");
   recipeTitle.textContent = recipe.title;
   recipeTitle.classList.toggle("is-long", recipe.title.length > 42);

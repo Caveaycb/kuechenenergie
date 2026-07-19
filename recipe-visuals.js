@@ -3,7 +3,7 @@
 
   const ingredientIcons = [
     [/hähnchen|pute|chicken/, "🍗"],
-    [/lachs|fisch|thunfisch/, "🐟"],
+    [/lachs|fisch|thunfisch|karpfen/, "🐟"],
     [/ei\b|eier|omelette/, "🥚"],
     [/feta|käse|mozzarella/, "🧀"],
     [/tofu|bohnen|linsen|kichererbsen/, "🫘"],
@@ -34,7 +34,8 @@
     mexikanisch: ["🌽", "🫑", "🍅"],
     orientalisch: ["🍋", "🫘", "🌿"],
     indisch: ["🥕", "🫑", "🍚"],
-    klassisch: ["🥦", "🍅", "🌿"]
+    klassisch: ["🥦", "🍅", "🌿"],
+    saechsisch: ["🥔", "🍎", "🌿"]
   };
 
   function stableHash(value) {
@@ -55,6 +56,7 @@
       return "🍽️";
     }
     if (recipe.course === "dessert") {
+      if (/quarkkäul|quarkkeul|plinsen/.test(title)) return "🥞";
       if (/streusel|crumble/.test(title)) return "🥧";
       if (/keks|cheese/.test(title)) return "🍰";
       if (/pudding|creme|mousse/.test(title)) return "🍮";

@@ -134,7 +134,11 @@
 
     const { recipe, macros } = meal;
     const portions = Math.max(1, Number(servingCount) || 1);
-    const cuisine = recipe.cuisine || "Alltagsküche";
+    const cuisine = recipe.cuisine === "saechsisch"
+      ? "Typisch sächsisch"
+      : recipe.cuisine === "klassisch"
+        ? "Modern & klassisch"
+        : recipe.cuisine || "Alltagsküche";
     const meta = `${courseLabel(recipe.course)} · ${cuisine} · ${dietLabel(recipe.diet)} · ${recipe.time} Min. · ${recipe.level}`;
     const macroLine = `${Math.round(macros.kcal)} kcal · ${Math.round(macros.protein)} g Protein · ${Math.round(macros.carbs)} g Kohlenhydrate · ${Math.round(macros.fat)} g Fett pro Portion`;
     const adaptationParts = [];

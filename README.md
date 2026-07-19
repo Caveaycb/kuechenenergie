@@ -2,12 +2,13 @@
 
 **Online ausprobieren:** [caveaycb.github.io/kuechenenergie](https://caveaycb.github.io/kuechenenergie/)
 
-Ein responsiver Mahlzeiten-Konfigurator im eins-energie-Look mit 100 eigenständigen
-Grundrezepten und mehr als 4.000 möglichen Makro-Anpassungen. Aus Kalorien- und
+Ein responsiver Mahlzeiten-Konfigurator im eins-energie-Look mit 600 eigenständigen
+Grundrezepten und mehr als 24.000 möglichen Makro-Anpassungen. Aus Kalorien- und
 Proteinspanne, Gang, Ernährungsweise, Küchenstil, Zeitlimit und Ausschlüssen entsteht
-ein vollständiges Rezept mit Zutatenliste und Zubereitung. Der Pilotkatalog enthält
-15 Vorspeisen, 65 Hauptspeisen und 20 Desserts. Die Gerichte verwenden überwiegend
-alltagstaugliche Zutaten aus deutschen Supermärkten.
+ein vollständiges Rezept mit Zutatenliste und Zubereitung. Der Katalog enthält
+105 Vorspeisen, 395 Hauptspeisen und 100 Desserts. Dazu gehören 30 separat
+recherchierte Gerichte im Küchenstil „Typisch sächsisch“. Die Gerichte verwenden
+überwiegend alltagstaugliche Zutaten aus deutschen Supermärkten.
 
 Jedes Rezept enthält mindestens sechs ausführliche Arbeitsschritte inklusive
 Vorbereitung, Garprobe, Abschmecken und Servierhinweisen.
@@ -53,9 +54,9 @@ Danach ist die App unter `http://localhost:8765` erreichbar.
 
 ## Rezeptmethodik
 
-Der Pilot trennt echte Grundrezepte von automatisch berechneten Varianten. Jedes
+Der Katalog trennt echte Grundrezepte von automatisch berechneten Varianten. Jedes
 Grundrezept besitzt einen natürlichen Namen, eine eigene Zutatenliste, eine von
-40 passenden Zubereitungsfamilien und rezeptverträgliche Regeln für Protein- und
+77 passenden Zubereitungsfamilien und rezeptverträgliche Regeln für Protein- und
 Energieanpassungen. Eine angepasste Portionsgröße oder zusätzliche Beilage wird
 nicht als neues Grundrezept gezählt.
 
@@ -63,6 +64,8 @@ Die Bibliothek ist eine Küchenenergie-Eigenentwicklung. Rezepttexte, Bilder,
 Bewertungen und strukturierte Rezeptdaten fremder Plattformen – insbesondere von
 Chefkoch – werden weder automatisiert ausgelesen noch übernommen. Eine spätere
 Einbindung externer Inhalte setzt eine dokumentierte Lizenz oder Kooperation voraus.
+Die sächsische Recherche und die Abgrenzung geschützter Produktbezeichnungen sind
+in `SAECHSISCHE-RECHERCHE.md` dokumentiert.
 
 Kalorien werden konsistent aus Protein, Kohlenhydraten und Fett berechnet. Die
 Zutatenmengen werden innerhalb realistischer Grenzen an die gewählten Kalorien-
