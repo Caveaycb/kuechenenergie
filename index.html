@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Küchenenergie stellt dir alltagstaugliche Fitnessgerichte passend zu deinen Kalorien, Makros und Vorlieben zusammen."
+    />
+    <title>Küchenenergie – Fitnessküche, die zu dir passt</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#meal-form">Direkt zum Rezept-Konfigurator</a>
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Küchenenergie Startseite">
+        <span class="brand-mark" aria-hidden="true">e<span>i</span>ns</span>
+        <span class="brand-copy">
+          <strong>Küchenenergie</strong>
+          <small>Fitnessküche · #einsvoraus</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <span class="header-note"><strong id="header-recipe-count">4.228</strong> Ideen. Ein Gericht. Genau deins.</span>
+        <button class="button button-quiet saved-trigger" id="open-saved" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z" /></svg>
+          Merkliste <span class="saved-count" id="saved-count">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow"><span></span> #einsvoraus auf dem Teller</p>
+          <h1 id="page-title">Energie, die<br /><em>zu dir passt.</em></h1>
+        </div>
+        <p class="intro-copy">
+          Wähle deine Zielwerte und Vorlieben. Küchenenergie findet daraus ein
+          vollständiges Rezept – alltagstauglich, ausgewogen und passend zu deinen Makros.
+        </p>
+      </section>
+
+      <div class="builder-layout">
+        <aside class="config-panel" aria-labelledby="config-title">
+          <div class="panel-heading">
+            <div>
+              <span class="step-label">Deine Wünsche</span>
+              <h2 id="config-title">Gericht konfigurieren</h2>
+            </div>
+            <button class="reset-button" id="reset-config" type="button">Zurücksetzen</button>
+          </div>
+
+          <form id="meal-form" aria-describedby="available-count">
+            <section class="control-section search-section" aria-labelledby="search-title">
+              <div class="search-heading">
+                <div>
+                  <h3 id="search-title">Rezepte durchsuchen</h3>
+                  <p>Nach Gericht oder Zutat</p>
+                </div>
+              </div>
+
+              <div class="search-box" role="search">
+                <label class="sr-only" for="recipe-search">Rezept oder Zutat suchen</label>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
+                <input
+                  id="recipe-search"
+                  name="recipeSearch"
+                  type="search"
+                  placeholder="z. B. Kartoffeln, Tofu oder Bowl"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="search-status"
+                  aria-controls="search-results"
+                />
+                <button id="clear-search" type="button" aria-label="Rezeptsuche leeren" hidden>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+                </button>
+              </div>
+
+              <p class="search-status" id="search-status" role="status" aria-live="polite">Alle Rezepte werden berücksichtigt.</p>
+              <ul class="search-results" id="search-results" aria-label="Rezeptvorschläge" hidden></ul>
+            </section>
+
+            <fieldset class="control-section target-section">
+              <legend>Zielwerte <span>pro Portion</span></legend>
+
+              <div class="range-control">
+                <span class="range-head">
+                  <span>Kalorien</span>
+                  <output id="calories-output" for="calories-min calories-max">550–750 kcal</output>
+                </span>
+                <div class="dual-range calorie-dual" id="calorie-range">
+                  <span class="range-track" aria-hidden="true"></span>
+                  <input id="calories-min" name="caloriesMin" aria-label="Minimale Kalorien" type="range" min="350" max="950" step="25" value="550" />
+                  <input id="calories-max" name="caloriesMax" aria-label="Maximale Kalorien" type="range" min="350" max="950" step="25" value="750" />
+                </div>
+                <span class="range-scale"><span>350</span><span>950 kcal</span></span>
+              </div>
+
+              <div class="range-control protein-control">
+                <span class="range-head">
+                  <span>Protein</span>
+                  <output id="protein-output" for="protein-min protein-max">35–55 g</output>
+                </span>
+                <div class="dual-range protein-dual" id="protein-range">
+                  <span class="range-track" aria-hidden="true"></span>
+                  <input id="protein-min" name="proteinMin" aria-label="Minimales Protein" type="range" min="20" max="80" step="5" value="35" />
+                  <input id="protein-max" name="proteinMax" aria-label="Maximales Protein" type="range" min="20" max="80" step="5" value="55" />
+                </div>
+                <span class="range-scale"><span>20</span><span>80 g</span></span>
+              </div>
+            </fieldset>
+
+            <fieldset class="control-section">
+              <legend>Gang</legend>
+              <div class="segmented course-segmented" role="group" aria-label="Gang auswählen">
+                <input type="radio" name="course" id="course-all" value="all" checked />
+                <label for="course-all">Alle</label>
+                <input type="radio" name="course" id="course-starter" value="starter" />
+                <label for="course-starter">Vorspeise</label>
+                <input type="radio" name="course" id="course-main" value="main" />
+                <label for="course-main">Hauptspeise</label>
+                <input type="radio" name="course" id="course-dessert" value="dessert" />
+                <label for="course-dessert">Dessert</label>
+              </div>
+            </fieldset>
+
+            <fieldset class="control-section">
+              <legend>Ernährungsweise</legend>
+              <div class="segmented" role="group" aria-label="Ernährungsweise">
+                <input type="radio" name="diet" id="diet-all" value="all" checked />
+                <label for="diet-all">Alles</label>
+                <input type="radio" name="diet" id="diet-vegetarian" value="vegetarian" />
+                <label for="diet-vegetarian">Vegetarisch</label>
+                <input type="radio" name="diet" id="diet-vegan" value="vegan" />
+                <label for="diet-vegan">Vegan</label>
+              </div>
+            </fieldset>
+
+            <div class="control-section two-columns">
+              <label class="select-control" for="cuisine">
+                <span>Küchenstil</span>
+                <span class="select-wrap">
+                  <select id="cuisine" name="cuisine">
+                    <option value="all">Überrasch mich</option>
+                    <option value="deutsch">Deutsch &amp; bodenständig</option>
+                    <option value="mediterran">Mediterran</option>
+                    <option value="asiatisch">Asiatisch</option>
+                    <option value="mexikanisch">Mexikanisch</option>
+                    <option value="orientalisch">Orientalisch</option>
+                    <option value="indisch">Indisch</option>
+                    <option value="klassisch">Modern &amp; klassisch</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5" /></svg>
+                </span>
+              </label>
+
+              <label class="select-control" for="max-time">
+                <span>Maximale Zeit</span>
+                <span class="select-wrap">
+                  <select id="max-time" name="maxTime">
+                    <option value="60">Ganz entspannt</option>
+                    <option value="15">Bis 15 Min.</option>
+                    <option value="25">Bis 25 Min.</option>
+                    <option value="35" selected>Bis 35 Min.</option>
+                    <option value="45">Bis 45 Min.</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5" /></svg>
+                </span>
+              </label>
+            </div>
+
+            <fieldset class="control-section energy-settings-section">
+              <legend>Kochenergie <span>für Kosten &amp; Spartipps</span></legend>
+              <div class="energy-settings-grid">
+                <label class="select-control" for="appliance">
+                  <span>Gerät für die Schätzung</span>
+                  <span class="select-wrap">
+                    <select id="appliance" name="appliance">
+                      <option value="auto" selected>Automatisch passend</option>
+                      <option value="induction">Induktionskochfeld</option>
+                      <option value="ceramic">Glaskeramik / Ceran</option>
+                      <option value="hotplate">Elektrokochplatte</option>
+                      <option value="oven">Elektrobackofen</option>
+                      <option value="airfryer">Heißluftfritteuse</option>
+                      <option value="microwave">Mikrowelle</option>
+                      <option value="gas">Gaskochfeld</option>
+                    </select>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5" /></svg>
+                  </span>
+                </label>
+
+                <label class="number-control" for="energy-price">
+                  <span>Dein Energiepreis</span>
+                  <span class="number-wrap">
+                    <input id="energy-price" name="energyPrice" type="number" inputmode="decimal" min="1" max="100" step="0.1" value="35" />
+                    <b>ct/kWh</b>
+                  </span>
+                </label>
+              </div>
+              <p class="energy-settings-note">Die Angabe bleibt lokal in deinem Browser. Bei Gas bitte den persönlichen Gaspreis einsetzen.</p>
+            </fieldset>
+
+            <fieldset class="control-section exclusion-section">
+              <legend>Nicht in meinem Gericht <span>optional</span></legend>
+              <div class="chip-group">
+                <input type="checkbox" name="exclude" id="exclude-gluten" value="gluten" />
+                <label for="exclude-gluten">Gluten</label>
+                <input type="checkbox" name="exclude" id="exclude-lactose" value="laktose" />
+                <label for="exclude-lactose">Laktose</label>
+                <input type="checkbox" name="exclude" id="exclude-nuts" value="nüsse" />
+                <label for="exclude-nuts">Nüsse</label>
+                <input type="checkbox" name="exclude" id="exclude-soy" value="soja" />
+                <label for="exclude-soy">Soja</label>
+                <input type="checkbox" name="exclude" id="exclude-fish" value="fisch" />
+                <label for="exclude-fish">Fisch</label>
+              </div>
+            </fieldset>
+
+            <button class="button button-primary generate-button" type="submit">
+              <span>Meine Küchenenergie berechnen</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5" /></svg>
+            </button>
+            <p class="form-hint" id="available-count" aria-live="polite">4.228 passende Ideen in der Bibliothek</p>
+          </form>
+        </aside>
+
+        <section class="result-area" id="result-area" aria-busy="false" aria-label="Rezeptergebnis">
+          <p class="sr-only" id="result-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+          <div class="recipe-card" id="recipe-card">
+            <div class="recipe-visual" id="recipe-visual">
+              <div class="visual-topline">
+                <span class="match-badge" id="match-badge">
+                  <span class="match-dot"></span><span id="match-value">96</span>% Makro-Treffer
+                </span>
+                <button class="icon-button visual-save" id="save-recipe" type="button" aria-label="Gericht merken">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z" /></svg>
+                </button>
+              </div>
+
+              <div class="food-art" id="food-art" data-layout="0" data-pattern="dots" aria-hidden="true">
+                <span class="art-orbit orbit-one"></span>
+                <span class="art-orbit orbit-two"></span>
+                <span class="art-plate"></span>
+                <span class="food-main" id="food-main">🥗</span>
+                <span class="food-accent food-accent-one" id="food-accent-one">🍗</span>
+                <span class="food-accent food-accent-two" id="food-accent-two">🍋</span>
+                <span class="art-spark spark-one">✦</span>
+                <span class="art-spark spark-two">●</span>
+                <span class="art-leaf leaf-one"></span>
+                <span class="art-leaf leaf-two"></span>
+              </div>
+
+              <div class="visual-copy">
+                <p id="recipe-cuisine">ORIENTALISCH · MISCHKOST</p>
+                <h2 id="recipe-title" tabindex="-1">Harissa Chicken Bowl</h2>
+                <p id="recipe-description">Würziges Hähnchen, fluffiger Couscous und Zitronen-Joghurt mit ordentlich Crunch.</p>
+                <div class="recipe-meta" aria-label="Rezeptinformationen">
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b id="recipe-time">30 Min.</b></span>
+                  <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 16c0-6 3-9 6-9s6 3 6 9M12 7V4M9 4h6"/></svg><b id="recipe-level">Einfach</b></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="recipe-content">
+              <div class="macro-strip" aria-label="Nährwerte pro Portion">
+                <div class="macro-item calories-macro">
+                  <span>Kalorien</span><strong id="macro-calories">651</strong><small>kcal</small>
+                </div>
+                <div class="macro-item protein-macro">
+                  <span>Protein</span><strong id="macro-protein">46</strong><small>g</small>
+                  <i class="macro-bar"><i id="protein-bar"></i></i>
+                </div>
+                <div class="macro-item">
+                  <span>Carbs</span><strong id="macro-carbs">68</strong><small>g</small>
+                </div>
+                <div class="macro-item">
+                  <span>Fette</span><strong id="macro-fat">19</strong><small>g</small>
+                </div>
+              </div>
+
+              <section class="energy-insight" aria-labelledby="energy-heading">
+                <div class="energy-heading-row">
+                  <span class="energy-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-13h-6z" /></svg>
+                  </span>
+                  <div>
+                    <p class="section-kicker">KOCHENERGIE</p>
+                    <h3 id="energy-heading">Was die Zubereitung ungefähr kostet</h3>
+                  </div>
+                  <span class="estimate-badge">Modellschätzung</span>
+                </div>
+
+                <div class="energy-metrics" aria-label="Geschätzter Energieverbrauch">
+                  <article>
+                    <span>Gerät</span>
+                    <strong id="energy-device">Induktion</strong>
+                    <small id="energy-device-note">automatisch erkannt</small>
+                  </article>
+                  <article>
+                    <span>Verbrauch</span>
+                    <strong><b id="energy-kwh">0,35</b> kWh</strong>
+                    <small id="energy-kind">Strom · 1 Portion</small>
+                  </article>
+                  <article>
+                    <span>Kochkosten</span>
+                    <strong id="energy-cost">0,12 €</strong>
+                    <small id="energy-price-note">bei 35 ct/kWh</small>
+                  </article>
+                </div>
+
+                <div class="energy-saving">
+                  <span id="energy-saving-percent">−16 %</span>
+                  <p>
+                    <strong id="energy-alternative-title">Deckel + Restwärme</strong>
+                    <small id="energy-alternative-copy">ca. 0,29 kWh · 0,10 €</small>
+                  </p>
+                </div>
+
+                <p class="energy-tip"><strong>So sparst du:</strong> <span id="energy-tip">Nutze einen passenden Topf mit Deckel und reduziere die Leistung nach dem Aufkochen.</span></p>
+                <p class="energy-disclaimer" id="energy-disclaimer">Modellschätzung aus Geräteprofil, aktiver Garzeit und Portionszahl.</p>
+                <details class="energy-method">
+                  <summary>So wird geschätzt</summary>
+                  <p>Das Modell kombiniert eine typische Leistungsaufnahme des gewählten Geräts mit der geschätzten aktiven Garzeit, der Portionszahl und deinem Energiepreis. Es misst kein reales Gerät.</p>
+                  <a href="https://www.umweltbundesamt.de/umwelttipps-fuer-den-alltag/elektrogeraete/herd-kochfelder" target="_blank" rel="noopener noreferrer">Energiespartipps des Umweltbundesamts</a>
+                </details>
+              </section>
+
+              <div class="recipe-toolbar">
+                <div>
+                  <p class="section-kicker">DEIN REZEPT</p>
+                  <h3 id="detail-title">Harissa Chicken Bowl</h3>
+                </div>
+                <div class="serving-control" aria-label="Portionen wählen">
+                  <span>Portionen</span>
+                  <button type="button" id="serving-minus" aria-label="Eine Portion weniger">−</button>
+                  <output id="servings" aria-live="polite">1</output>
+                  <button type="button" id="serving-plus" aria-label="Eine Portion mehr">+</button>
+                </div>
+              </div>
+
+              <div class="recipe-columns">
+                <section class="ingredients-section" aria-labelledby="ingredients-heading">
+                  <div class="section-title-row">
+                    <h3 id="ingredients-heading">Zutaten</h3>
+                    <button class="text-button" id="copy-list" type="button">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8h11v12H8z"/><path d="M5 16H4V4h11v1"/></svg>
+                      Kopieren
+                    </button>
+                  </div>
+                  <ul class="ingredient-list" id="ingredient-list"></ul>
+                </section>
+
+                <section class="method-section" aria-labelledby="method-heading">
+                  <h3 id="method-heading">Schritt für Schritt</h3>
+                  <ol class="method-list" id="method-list"></ol>
+                </section>
+              </div>
+
+              <div class="coach-note">
+                <span class="coach-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M8 14c-2-1-3-3-3-5a7 7 0 0 1 14 0c0 2-1 4-3 5-1 1-1 2-1 2H9s0-1-1-2z"/></svg>
+                </span>
+                <div>
+                  <strong>Energie-Tipp</strong>
+                  <p id="coach-tip">Röste den Couscous vor dem Aufgießen kurz trocken an – das bringt ein angenehm nussiges Aroma.</p>
+                </div>
+              </div>
+
+              <div class="result-actions">
+                <button class="button button-secondary" id="print-recipe" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8V4h10v4M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z"/></svg>
+                  Direkt drucken
+                </button>
+                <button class="button button-secondary" id="download-pdf" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14v2H5z"/></svg>
+                  PDF herunterladen
+                </button>
+                <button class="button button-dark" id="new-idea" type="button">
+                  Neue Idee
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2-5.3M20 4v6h-6" /></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="no-result" id="no-result" hidden>
+            <span aria-hidden="true">🥕</span>
+            <h2 id="no-result-title" tabindex="-1">Für diese Kombination gibt es keinen realistischen Treffer.</h2>
+            <p>Erweitere die Kalorien- oder Proteinspanne, entferne einen Ausschluss oder erhöhe die Zubereitungszeit.</p>
+            <button class="button button-dark" id="broaden-search" type="button">Auswahl lockern</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <span>Küchenenergie</span>
+      <p>Fitnessküche, die zu deinem Alltag passt.</p>
+      <small>Nährwerte sind alltagstaugliche Näherungswerte und können je nach Produkt abweichen.</small>
+    </footer>
+
+    <dialog class="saved-dialog" id="saved-dialog">
+      <div class="dialog-heading">
+        <div><span class="step-label">Für später</span><h2>Deine Merkliste</h2></div>
+        <button class="icon-button" id="close-saved" type="button" aria-label="Merkliste schließen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <div class="saved-list" id="saved-list"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="recipe-factory.js"></script>
+    <script src="recipe-quality.js"></script>
+    <script src="recipe-visuals.js"></script>
+    <script src="nutrition-engine.js"></script>
+    <script src="energy-engine.js"></script>
+    <script src="pdf-export.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
