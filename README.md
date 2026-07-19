@@ -14,7 +14,9 @@ Ein Tagesplaner kombiniert Vorspeise, Hauptspeise und Dessert zu einem
 Drei-Gänge-Menü. Der Wochenplaner erzeugt sieben möglichst abwechslungsreiche
 Tagesmenüs mit zusammen 21 Rezepten und weist Nährwerte sowie geschätzte
 Kochenergie aus. Wochenpläne lassen sich lokal im jeweiligen Browser speichern
-und auf einer eigenen, kompakten Unterseite ansehen, drucken oder löschen.
+und auf einer eigenen, kompakten Unterseite ansehen, drucken oder löschen. Jedes
+Gericht eines gespeicherten Plans lässt sich von dort wieder als vollständiges
+Rezept mit den zugehörigen Mengen und Zubereitungsschritten öffnen.
 Allergene lassen sich am Einzelrezept und in jedem Plan per Knopfdruck einblenden.
 
 Jedes Rezept enthält mindestens sechs ausführliche Arbeitsschritte inklusive

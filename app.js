@@ -769,6 +769,10 @@ function serializeWeekPlan(plan) {
     name: `Wochenplan vom ${titleDate}`,
     savedAt: savedAt.toISOString(),
     config: {
+      caloriesMin: plan.config.caloriesMin,
+      caloriesMax: plan.config.caloriesMax,
+      proteinMin: plan.config.proteinMin,
+      proteinMax: plan.config.proteinMax,
       diet: plan.config.diet,
       cuisine: plan.config.cuisine,
       maxTime: plan.config.maxTime,
@@ -795,10 +799,84 @@ function serializeWeekPlan(plan) {
           carbs: Math.round(meal.macros.carbs),
           fat: Math.round(meal.macros.fat)
         },
+        config: { ...meal.config, exclude: [...(meal.config.exclude || [])] },
+        scale: meal.scale,
+        boosterAmount: meal.boosterAmount,
+        booster: meal.booster,
+        energyBoosterAmount: meal.energyBoosterAmount,
+        energyBooster: meal.energyBooster,
+        match: meal.match,
+        ingredients: meal.ingredients.map((ingredient) => ({ ...ingredient })),
+        steps: [...meal.steps],
         allergens: allergensForMeal(meal)
       }))
     }))
   };
+}
+
+function restoredWeekMeal(savedMeal, savedPlan) {
+  const recipe = recipeDatabase.find((item) => item.id === savedMeal.recipeId);
+  if (!recipe) return null;
+  const kcal = Number(savedMeal.macros?.kcal) || recipe.macros.kcal;
+  const protein = Number(savedMeal.macros?.protein) || recipe.macros.protein;
+  const inferredConfig = {
+    ...getConfig(),
+    ...(savedPlan.config || {}),
+    caloriesMin: Math.max(50, kcal - 3),
+    caloriesMax: kcal + 3,
+    proteinMin: Math.max(1, protein - 1),
+    proteinMax: protein + 1,
+    calories: kcal,
+    protein,
+    course: recipe.course,
+    cuisine: "all",
+    maxTime: 60,
+    search: "",
+    exclude: [...(savedPlan.config?.exclude || [])]
+  };
+  const config = savedMeal.config
+    ? { ...inferredConfig, ...savedMeal.config, exclude: [...(savedMeal.config.exclude || [])] }
+    : inferredConfig;
+  const fallback = adaptRecipe(recipe, config);
+  const hasFullRecipe = Array.isArray(savedMeal.ingredients) && savedMeal.ingredients.length
+    && Array.isArray(savedMeal.steps) && savedMeal.steps.length;
+  return {
+    ...fallback,
+    recipe,
+    config,
+    scale: Number.isFinite(Number(savedMeal.scale)) ? Number(savedMeal.scale) : fallback.scale,
+    boosterAmount: Number.isFinite(Number(savedMeal.boosterAmount)) ? Number(savedMeal.boosterAmount) : fallback.boosterAmount,
+    booster: savedMeal.booster || fallback.booster,
+    energyBoosterAmount: Number.isFinite(Number(savedMeal.energyBoosterAmount)) ? Number(savedMeal.energyBoosterAmount) : fallback.energyBoosterAmount,
+    energyBooster: savedMeal.energyBooster || fallback.energyBooster,
+    macros: savedMeal.macros ? { ...fallback.macros, ...savedMeal.macros } : fallback.macros,
+    match: Number(savedMeal.match) || fallback.match,
+    ingredients: hasFullRecipe ? savedMeal.ingredients.map((ingredient) => ({ ...ingredient })) : fallback.ingredients,
+    steps: hasFullRecipe ? [...savedMeal.steps] : fallback.steps
+  };
+}
+
+function openRequestedWeekRecipe() {
+  const params = new URLSearchParams(window.location.search);
+  const planId = params.get("weekPlan");
+  if (!planId) return;
+  const dayIndex = Number(params.get("day"));
+  const mealIndex = Number(params.get("meal"));
+  const savedPlan = readSavedWeekPlans().find((plan) => plan.id === planId);
+  const savedDay = savedPlan?.days?.find((day, index) => (Number.isInteger(day.dayIndex) ? day.dayIndex : index) === dayIndex);
+  const savedMeal = savedDay?.meals?.[mealIndex];
+  const meal = savedMeal && restoredWeekMeal(savedMeal, savedPlan);
+  if (!meal) {
+    showToast("Dieses Wochenplan-Rezept ist in diesem Browser nicht mehr gespeichert.");
+    return;
+  }
+  renderMeal(meal);
+  document.querySelector("#result-announcement").textContent = `${meal.recipe.title} aus deinem gespeicherten Wochenplan wurde geöffnet.`;
+  window.requestAnimationFrame(() => {
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    document.querySelector("#recipe-title").focus({ preventScroll: true });
+  });
 }
 
 function updateWeekPlanControls() {
@@ -1318,3 +1396,4 @@ updateControls();
 updateSavedList();
 showRecipePlaceholder();
 setPlannerMode("day");
+openRequestedWeekRecipe();
