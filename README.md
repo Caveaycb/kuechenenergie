@@ -19,6 +19,18 @@ Gericht eines gespeicherten Plans lässt sich von dort wieder als vollständiges
 Rezept mit den zugehörigen Mengen und Zubereitungsschritten öffnen. Allergene werden
 bewusst erst in der geöffneten Rezeptkarte per Knopfdruck ausgewiesen.
 
+Aus jedem Tages- oder Wochenplan entsteht auf Knopfdruck eine automatisch
+zusammengefasste Einkaufsliste. Gleiche Zutaten werden addiert, nach
+Supermarktbereichen gruppiert und auf bis zu sechs Personen skaliert; die Liste kann
+abgehakt, kopiert und gedruckt werden. Auch gespeicherte Wochenpläne bieten diese
+Funktion auf ihrer Archivseite.
+
+Als zweiter, zentraler Einstieg steht ein Kühlschrankmodus bereit. Er wechselt die
+gesamte Oberfläche in ein eigenes kühles Farbsystem und reduziert die Bedienung auf
+eine Zutaten-Suche sowie typische, direkt anwählbare Vorräte. Die Treffer werden
+danach sortiert, wie viele vorhandene Zutaten sie verwenden, und nennen knapp, was
+für das vollständige Gericht noch hilfreich wäre.
+
 Jedes Rezept enthält mindestens sechs ausführliche Arbeitsschritte inklusive
 Vorbereitung, Garprobe, Abschmecken und Servierhinweisen.
 

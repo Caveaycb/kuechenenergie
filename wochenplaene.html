@@ -56,7 +56,21 @@
       <small>Gespeicherte Wochenpläne sind nur in diesem Browser verfügbar. Nährwerte bleiben alltagstaugliche Näherungswerte.</small>
     </footer>
 
+    <dialog class="shopping-dialog" id="shopping-dialog" aria-labelledby="shopping-title">
+      <div class="dialog-heading">
+        <div><span class="step-label">Automatisch gebündelt</span><h2 id="shopping-title">Deine Einkaufsliste</h2><p id="shopping-source"></p></div>
+        <button class="icon-button" id="close-shopping-list" type="button" aria-label="Einkaufsliste schließen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+      </div>
+      <label class="shopping-people" for="shopping-people"><span>Für</span><select id="shopping-people"><option value="1">1 Person</option><option value="2">2 Personen</option><option value="3">3 Personen</option><option value="4">4 Personen</option><option value="5">5 Personen</option><option value="6">6 Personen</option></select></label>
+      <div class="shopping-list" id="shopping-list"></div>
+      <div class="shopping-actions"><button class="button button-secondary" id="copy-shopping-list" type="button">Liste kopieren</button><button class="button button-dark" id="print-shopping-list" type="button">Liste drucken</button></div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="recipe-catalog.js"></script>
+    <script src="recipe-catalog-extension.js"></script>
+    <script src="recipe-quality.js"></script>
+    <script src="shopping-list.js"></script>
     <script src="wochenplaene.js"></script>
   </body>
 </html>

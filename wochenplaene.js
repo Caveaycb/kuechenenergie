@@ -7,11 +7,21 @@ const savedPlanCount = document.querySelector("#saved-plan-page-count");
 const savedPlanLabel = document.querySelector("#saved-plan-page-label");
 const announcement = document.querySelector("#saved-plans-announcement");
 const toast = document.querySelector("#toast");
+const shoppingDialog = document.querySelector("#shopping-dialog");
+const shoppingList = document.querySelector("#shopping-list");
+const shoppingSource = document.querySelector("#shopping-source");
+const shoppingPeople = document.querySelector("#shopping-people");
 const MAIN_PAGE_FILE = /Kuechenenergie-Wochenplaene\.html$/i.test(window.location.pathname)
   ? "Kuechenenergie.html"
   : "index.html";
 let toastTimer;
 let printCleanup = null;
+let shoppingPrintCleanup = null;
+let shoppingMeals = [];
+let shoppingTitle = "";
+const archiveRecipeDatabase = window.KuechenenergieQuality?.prepare
+  ? window.KuechenenergieQuality.prepare(window.KuechenenergieRecipeCatalog?.buildRecipes?.() || [])
+  : (window.KuechenenergieRecipeCatalog?.buildRecipes?.() || []);
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"]/g, (character) => ({
@@ -131,6 +141,11 @@ function dayMarkup(day, planId, fallbackIndex) {
     </section>`;
 }
 
+function ingredientsForSavedMeal(meal) {
+  if (Array.isArray(meal?.ingredients) && meal.ingredients.length) return meal.ingredients;
+  return archiveRecipeDatabase.find((recipe) => recipe.id === meal?.recipeId)?.ingredients || [];
+}
+
 function planMarkup(plan, index) {
   const config = plan.config || {};
   const rawPlanId = String(plan.id || `plan-${index}`);
@@ -145,8 +160,9 @@ function planMarkup(plan, index) {
           <time datetime="${escapeHtml(plan.savedAt || "")}">Gespeichert: ${escapeHtml(savedDate(plan.savedAt))}</time>
         </div>
         <div class="saved-week-card-actions">
-          <button type="button" data-print-plan="${planId}">Plan drucken</button>
-          <button type="button" data-delete-plan="${planId}">Löschen</button>
+          <button class="saved-week-shopping" type="button" data-shopping-plan="${planId}">Einkaufsliste</button>
+          <button class="saved-week-print" type="button" data-print-plan="${planId}">Plan drucken</button>
+          <button class="saved-week-delete" type="button" data-delete-plan="${planId}">Löschen</button>
         </div>
       </div>
       <div class="saved-week-meta" aria-label="Einstellungen des Plans">
@@ -209,6 +225,61 @@ function printPlan(id) {
   window.setTimeout(() => printCleanup?.(), 500);
 }
 
+function renderShoppingList() {
+  const engine = window.KuechenenergieShopping;
+  if (!engine) return;
+  const multiplier = Math.max(1, Number(shoppingPeople.value) || 1);
+  const groups = engine.aggregate(shoppingMeals, multiplier);
+  shoppingSource.textContent = `${shoppingTitle} · Mengen für ${multiplier} ${multiplier === 1 ? "Person" : "Personen"}`;
+  shoppingList.innerHTML = groups.length
+    ? engine.markup(groups, "archive-shopping-item")
+    : "<p class=\"shopping-empty\">Für diesen Plan sind keine Zutaten verfügbar.</p>";
+}
+
+function openArchivedShoppingList(id) {
+  const plan = readPlans().find((item) => item.id === id);
+  if (!plan) return;
+  shoppingMeals = plan.days.flatMap((day) => (day.meals || []).map((meal) => ({
+    ingredients: ingredientsForSavedMeal(meal)
+  })));
+  if (!shoppingMeals.some((meal) => meal.ingredients.length)) {
+    showToast("Für diesen älteren Plan sind keine Zutaten verfügbar.");
+    return;
+  }
+  shoppingTitle = plan.name || "Einkauf für deinen Wochenplan";
+  shoppingPeople.value = "1";
+  renderShoppingList();
+  if (typeof shoppingDialog.showModal === "function") shoppingDialog.showModal();
+  else shoppingDialog.setAttribute("open", "");
+}
+
+async function copyShoppingList() {
+  const engine = window.KuechenenergieShopping;
+  const groups = engine?.aggregate(shoppingMeals, Math.max(1, Number(shoppingPeople.value) || 1)) || [];
+  const text = engine?.text(groups, `${shoppingTitle} (${shoppingPeople.options[shoppingPeople.selectedIndex].text})`) || "";
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    document.body.append(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+  }
+  showToast("Einkaufsliste kopiert");
+}
+
+function printShoppingList() {
+  document.body.classList.add("printing-shopping");
+  shoppingPrintCleanup = () => {
+    document.body.classList.remove("printing-shopping");
+    shoppingPrintCleanup = null;
+  };
+  window.print();
+  window.setTimeout(() => shoppingPrintCleanup?.(), 600);
+}
+
 savedPlansList.addEventListener("click", (event) => {
   const weekToggle = event.target.closest("[data-toggle-week]");
   if (weekToggle) {
@@ -221,6 +292,11 @@ savedPlansList.addEventListener("click", (event) => {
     announcement.textContent = expanded ? "Der Wochenplan wurde geschlossen." : "Der Wochenplan mit sieben Tagen wurde geöffnet.";
     return;
   }
+  const shoppingButton = event.target.closest("[data-shopping-plan]");
+  if (shoppingButton) {
+    openArchivedShoppingList(shoppingButton.dataset.shoppingPlan);
+    return;
+  }
   const deleteButton = event.target.closest("[data-delete-plan]");
   if (deleteButton) {
     deletePlan(deleteButton.dataset.deletePlan);
@@ -231,8 +307,17 @@ savedPlansList.addEventListener("click", (event) => {
 });
 
 window.addEventListener("afterprint", () => printCleanup?.());
+window.addEventListener("afterprint", () => shoppingPrintCleanup?.());
 window.addEventListener("storage", (event) => {
   if (event.key === SAVED_WEEK_PLANS_KEY) renderPlans();
+});
+
+shoppingPeople.addEventListener("change", renderShoppingList);
+document.querySelector("#copy-shopping-list").addEventListener("click", copyShoppingList);
+document.querySelector("#print-shopping-list").addEventListener("click", printShoppingList);
+document.querySelector("#close-shopping-list").addEventListener("click", () => shoppingDialog.close());
+shoppingDialog.addEventListener("click", (event) => {
+  if (event.target === shoppingDialog) shoppingDialog.close();
 });
 
 renderPlans();

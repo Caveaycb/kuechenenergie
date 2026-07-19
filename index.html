@@ -33,6 +33,21 @@
     </header>
 
     <main id="top">
+      <section class="experience-mode" aria-labelledby="experience-mode-title">
+        <div>
+          <span class="mode-kicker">Was möchtest du heute?</span>
+          <h2 id="experience-mode-title">Dein Weg zum passenden Rezept</h2>
+        </div>
+        <div class="experience-mode-switch" role="group" aria-label="Küchenenergie-Modus wählen">
+          <button type="button" data-app-mode="planner" aria-pressed="true">
+            <span aria-hidden="true">⚡</span><strong>Rezeptmodus</strong><small>Ziele &amp; Makros</small>
+          </button>
+          <button type="button" data-app-mode="fridge" aria-pressed="false">
+            <span aria-hidden="true">❄</span><strong>Kühlschrankmodus</strong><small>Kochen mit Vorräten</small>
+          </button>
+        </div>
+      </section>
+
       <section class="intro hero-banner" aria-labelledby="page-title">
         <div class="hero-copy">
           <p class="eyebrow"><span></span> #einsvoraus auf dem Teller</p>
@@ -81,7 +96,40 @@
         </div>
       </section>
 
-      <div class="builder-layout">
+      <section class="fridge-section" id="fridge-mode-panel" aria-labelledby="fridge-title" hidden>
+        <div class="fridge-heading">
+          <div>
+            <p class="section-kicker">DEIN VORRAT · DEIN REZEPT</p>
+            <h1 id="fridge-title">Was gibt dein Kühlschrank her?</h1>
+            <p>Trage ein, was schon da ist. Küchenenergie zeigt dir passende Gerichte und was dafür eventuell noch fehlt.</p>
+          </div>
+          <span class="fridge-symbol" aria-hidden="true">❄</span>
+        </div>
+
+        <form class="fridge-search" id="fridge-form">
+          <label for="fridge-input">Vorhandene Zutaten</label>
+          <div class="fridge-search-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
+            <input id="fridge-input" type="search" autocomplete="off" placeholder="z. B. Kartoffeln, Eier oder Paprika" />
+            <button type="submit">Hinzufügen</button>
+          </div>
+          <p>Mehrere Zutaten kannst du mit Komma trennen.</p>
+        </form>
+
+        <div class="fridge-selected" id="fridge-selected" aria-live="polite"></div>
+
+        <div class="fridge-common">
+          <div><strong>Typische Vorräte</strong><span>Einfach antippen</span></div>
+          <div class="fridge-common-chips" id="fridge-common-chips"></div>
+        </div>
+
+        <p class="sr-only" id="fridge-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="fridge-results" id="fridge-results">
+          <div class="fridge-empty"><span aria-hidden="true">🥕</span><strong>Deine Zutaten machen den Anfang.</strong><p>Wähle oben typische Vorräte aus oder gib eigene Zutaten ein.</p></div>
+        </div>
+      </section>
+
+      <div class="builder-layout" id="builder-layout">
         <aside class="config-panel" aria-labelledby="config-title">
           <div class="panel-heading">
             <div>
@@ -518,6 +566,10 @@
             <p id="planner-mode-copy">Deine Zielspanne dient als Mahlzeitbasis; daraus entsteht ein realistischer Tagesrahmen im Verhältnis 20 / 60 / 20.</p>
           </div>
           <div class="planner-toolbar-actions">
+            <button class="button planner-shopping" id="create-shopping-list" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10l1 12H6L7 8Zm2 0V6a3 3 0 0 1 6 0v2" /></svg>
+              Einkaufsliste
+            </button>
             <button class="button planner-save" id="save-week-plan" type="button" hidden disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 4v6h8V4M8 17h8" /></svg>
               Wochenplan speichern
@@ -555,6 +607,21 @@
       <div class="saved-list" id="saved-list"></div>
     </dialog>
 
+    <dialog class="shopping-dialog" id="shopping-dialog" aria-labelledby="shopping-title">
+      <div class="dialog-heading">
+        <div><span class="step-label">Automatisch gebündelt</span><h2 id="shopping-title">Deine Einkaufsliste</h2><p id="shopping-source"></p></div>
+        <button class="icon-button" id="close-shopping-list" type="button" aria-label="Einkaufsliste schließen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <label class="shopping-people" for="shopping-people"><span>Für</span><select id="shopping-people"><option value="1">1 Person</option><option value="2">2 Personen</option><option value="3">3 Personen</option><option value="4">4 Personen</option><option value="5">5 Personen</option><option value="6">6 Personen</option></select></label>
+      <div class="shopping-list" id="shopping-list"></div>
+      <div class="shopping-actions">
+        <button class="button button-secondary" id="copy-shopping-list" type="button">Liste kopieren</button>
+        <button class="button button-dark" id="print-shopping-list" type="button">Liste drucken</button>
+      </div>
+    </dialog>
+
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="recipe-catalog.js"></script>
@@ -563,6 +630,7 @@
     <script src="recipe-visuals.js"></script>
     <script src="nutrition-engine.js"></script>
     <script src="energy-engine.js"></script>
+    <script src="shopping-list.js"></script>
     <script src="pdf-export.js"></script>
     <script src="app.js"></script>
   </body>

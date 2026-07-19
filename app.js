@@ -115,6 +115,19 @@ const plannerAnnouncement = document.querySelector("#planner-announcement");
 const generatePlanButton = document.querySelector("#generate-plan");
 const saveWeekPlanButton = document.querySelector("#save-week-plan");
 const savedWeekCount = document.querySelector("#saved-week-count");
+const builderLayout = document.querySelector("#builder-layout");
+const fridgePanel = document.querySelector("#fridge-mode-panel");
+const fridgeForm = document.querySelector("#fridge-form");
+const fridgeInput = document.querySelector("#fridge-input");
+const fridgeSelected = document.querySelector("#fridge-selected");
+const fridgeCommonChips = document.querySelector("#fridge-common-chips");
+const fridgeResults = document.querySelector("#fridge-results");
+const fridgeAnnouncement = document.querySelector("#fridge-announcement");
+const createShoppingListButton = document.querySelector("#create-shopping-list");
+const shoppingDialog = document.querySelector("#shopping-dialog");
+const shoppingList = document.querySelector("#shopping-list");
+const shoppingSource = document.querySelector("#shopping-source");
+const shoppingPeople = document.querySelector("#shopping-people");
 
 let currentMeal = null;
 let servings = 1;
@@ -123,9 +136,43 @@ let toastTimer;
 let previousCourse = form.elements.course.value;
 let plannerMode = "day";
 let plannerPlans = { day: null, week: null };
+let appMode = "planner";
+let shoppingMeals = [];
+let shoppingTitle = "";
+let shoppingPrintCleanup = null;
 const plannerMealCache = new Map();
+const fridgeIngredients = new Map();
 const SAVED_WEEK_PLANS_KEY = "kuechenenergie-week-plans";
 const WEEKDAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+
+const COMMON_FRIDGE_INGREDIENTS = [
+  "Kartoffeln", "Reis", "Nudeln", "Eier", "Tomaten", "Paprika", "Zucchini",
+  "Möhren", "Zwiebeln", "Brokkoli", "Spinat", "Hähnchen", "Hackfleisch",
+  "Lachs", "Quark", "Joghurt", "Käse", "Tofu", "Linsen", "Haferflocken"
+];
+
+const FRIDGE_ALIASES = {
+  kartoffeln: ["kartoffel"],
+  reis: ["reis"],
+  nudeln: ["nudel", "pasta", "spaghetti"],
+  eier: ["ei", "eier", "eiklar"],
+  tomaten: ["tomate", "tomatenmark"],
+  paprika: ["paprika"],
+  zucchini: ["zucchini"],
+  moehren: ["moehre", "karotte"],
+  zwiebeln: ["zwiebel"],
+  brokkoli: ["brokkoli"],
+  spinat: ["spinat"],
+  haehnchen: ["haehnchen", "huehnchen"],
+  hackfleisch: ["hackfleisch", "rinderhack"],
+  lachs: ["lachs"],
+  quark: ["quark"],
+  joghurt: ["joghurt", "skyr"],
+  kaese: ["kaese", "feta", "mozzarella", "parmesan"],
+  tofu: ["tofu"],
+  linsen: ["linse"],
+  haferflocken: ["haferflock", "hafer"]
+};
 
 const allergenLabels = {
   gluten: "Glutenhaltiges Getreide",
@@ -156,6 +203,200 @@ function normalizeSearchText(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>\"]/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;"
+  })[character]);
+}
+
+function fridgeVariants(value) {
+  const normalized = normalizeSearchText(value);
+  const variants = new Set([normalized, ...(FRIDGE_ALIASES[normalized] || [])]);
+  [...variants].forEach((term) => {
+    if (term.length > 5 && term.endsWith("en")) variants.add(term.slice(0, -2));
+    if (term.length > 4 && term.endsWith("n")) variants.add(term.slice(0, -1));
+    if (term.length > 4 && term.endsWith("e")) variants.add(term.slice(0, -1));
+  });
+  return [...variants].filter((term) => term.length > 1);
+}
+
+function recipeHasFridgeIngredient(recipe, ingredient) {
+  const ingredientNames = (recipe.ingredients || []).map((item) => normalizeSearchText(item.name));
+  return fridgeVariants(ingredient).some((variant) => ingredientNames.some((name) => {
+    if (variant.length <= 3) return name.split(" ").includes(variant);
+    return name.includes(variant);
+  }));
+}
+
+function setAppMode(mode) {
+  appMode = mode === "fridge" ? "fridge" : "planner";
+  const isFridge = appMode === "fridge";
+  document.body.classList.toggle("fridge-mode", isFridge);
+  document.querySelectorAll("[data-app-mode]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.appMode === appMode));
+  });
+  fridgePanel.hidden = !isFridge;
+  if (isFridge) {
+    builderLayout.classList.remove("has-fridge-recipe");
+    window.requestAnimationFrame(() => fridgeInput.focus({ preventScroll: true }));
+  }
+}
+
+function renderFridgeCommonChips() {
+  fridgeCommonChips.innerHTML = COMMON_FRIDGE_INGREDIENTS.map((ingredient) => {
+    const key = normalizeSearchText(ingredient);
+    const selected = fridgeIngredients.has(key);
+    return `<button type="button" data-fridge-common="${escapeHtml(ingredient)}" aria-pressed="${selected}">${escapeHtml(ingredient)}</button>`;
+  }).join("");
+}
+
+function renderFridgeSelection() {
+  const values = [...fridgeIngredients.entries()];
+  fridgeSelected.innerHTML = values.length
+    ? `<span>In deinem Kühlschrank:</span>${values.map(([key, label]) => `<button type="button" data-remove-fridge="${escapeHtml(key)}"><span>${escapeHtml(label)}</span><i aria-hidden="true">×</i><span class="sr-only"> entfernen</span></button>`).join("")}`
+    : "<p>Noch keine Zutaten ausgewählt.</p>";
+  renderFridgeCommonChips();
+}
+
+function rankedFridgeRecipes() {
+  const selected = [...fridgeIngredients.values()];
+  if (!selected.length) return [];
+  return recipeDatabase.map((recipe) => {
+    const matched = selected.filter((ingredient) => recipeHasFridgeIngredient(recipe, ingredient));
+    const essentialIngredients = (recipe.ingredients || []).filter((ingredient) => !/salz|pfeffer|gewürz|wasser|öl|essig|brühe|kräuter/i.test(ingredient.name));
+    const missing = essentialIngredients.filter((ingredient) => !selected.some((item) => recipeHasFridgeIngredient({ ingredients: [ingredient] }, item)));
+    const coverage = matched.length / selected.length;
+    const recipeCoverage = essentialIngredients.length
+      ? (essentialIngredients.length - missing.length) / essentialIngredients.length
+      : 0;
+    return { recipe, matched, missing, score: matched.length * 100 + coverage * 30 + recipeCoverage * 25 - recipe.time * 0.05 };
+  }).filter((result) => result.matched.length)
+    .sort((first, second) => second.score - first.score || first.recipe.time - second.recipe.time)
+    .slice(0, 12);
+}
+
+function renderFridgeResults() {
+  const selectedCount = fridgeIngredients.size;
+  if (!selectedCount) {
+    fridgeResults.innerHTML = `<div class="fridge-empty"><span aria-hidden="true">🥕</span><strong>Deine Zutaten machen den Anfang.</strong><p>Wähle oben typische Vorräte aus oder gib eigene Zutaten ein.</p></div>`;
+    fridgeAnnouncement.textContent = "Noch keine Zutaten ausgewählt.";
+    return;
+  }
+  const results = rankedFridgeRecipes();
+  if (!results.length) {
+    fridgeResults.innerHTML = `<div class="fridge-empty"><span aria-hidden="true">🧊</span><strong>Noch keine passende Idee gefunden.</strong><p>Ergänze eine weitere Zutat oder probiere einen allgemeineren Begriff.</p></div>`;
+    fridgeAnnouncement.textContent = "Zu dieser Auswahl wurde noch kein Rezept gefunden.";
+    return;
+  }
+  fridgeResults.innerHTML = results.map(({ recipe, matched, missing }) => `
+    <article class="fridge-result-card">
+      <div class="fridge-result-top"><span>${escapeHtml(courseLabel(recipe.course))}</span><span>${recipe.time} Min.</span></div>
+      <h2>${escapeHtml(recipe.title)}</h2>
+      <p>${escapeHtml(recipe.description)}</p>
+      <div class="fridge-match"><strong>${matched.length} ${matched.length === 1 ? "Treffer" : "Treffer"}</strong>${matched.map((ingredient) => `<span>${escapeHtml(ingredient)}</span>`).join("")}</div>
+      ${missing.length ? `<small>Noch hilfreich: ${missing.slice(0, 3).map((item) => escapeHtml(item.name)).join(", ")}</small>` : "<small>Alle wesentlichen Zutaten sind dabei.</small>"}
+      <button type="button" data-fridge-recipe="${escapeHtml(recipe.id)}">Rezept ansehen <span aria-hidden="true">→</span></button>
+    </article>`).join("");
+  fridgeAnnouncement.textContent = `${results.length} Rezeptvorschläge für ${selectedCount} ausgewählte ${selectedCount === 1 ? "Zutat" : "Zutaten"}.`;
+}
+
+function addFridgeIngredients(value) {
+  String(value || "").split(/[,;\n]+/).map((item) => item.trim()).filter(Boolean).forEach((label) => {
+    const key = normalizeSearchText(label);
+    if (key) fridgeIngredients.set(key, label);
+  });
+  renderFridgeSelection();
+  renderFridgeResults();
+}
+
+function openFridgeRecipe(recipeId) {
+  const recipe = recipeDatabase.find((item) => item.id === recipeId);
+  if (!recipe) return;
+  const macros = window.KuechenenergieNutrition.normalizeMacros(recipe.macros);
+  const config = {
+    ...getConfig(),
+    caloriesMin: Math.max(50, macros.kcal - 15),
+    caloriesMax: macros.kcal + 15,
+    proteinMin: Math.max(1, macros.protein - 2),
+    proteinMax: macros.protein + 2,
+    calories: macros.kcal,
+    protein: macros.protein,
+    course: recipe.course,
+    diet: "all",
+    cuisine: "all",
+    maxTime: 60,
+    search: "",
+    exclude: []
+  };
+  const meal = adaptRecipe(recipe, config);
+  renderMeal(meal);
+  builderLayout.classList.add("has-fridge-recipe");
+  window.requestAnimationFrame(() => {
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    document.querySelector("#recipe-title").focus({ preventScroll: true });
+  });
+}
+
+function currentShoppingPlan() {
+  return plannerPlans[plannerMode];
+}
+
+function renderShoppingList() {
+  const engine = window.KuechenenergieShopping;
+  if (!engine) return;
+  const multiplier = Math.max(1, Number(shoppingPeople.value) || 1);
+  const groups = engine.aggregate(shoppingMeals, multiplier);
+  shoppingSource.textContent = `${shoppingTitle} · Mengen für ${multiplier} ${multiplier === 1 ? "Person" : "Personen"}`;
+  shoppingList.innerHTML = groups.length
+    ? engine.markup(groups, "planner-shopping-item")
+    : "<p class=\"shopping-empty\">Für diesen Plan sind keine Zutaten verfügbar.</p>";
+}
+
+function openShoppingList() {
+  const plan = currentShoppingPlan();
+  if (!plan) {
+    showToast("Bitte zuerst einen Tages- oder Wochenplan erstellen.");
+    return;
+  }
+  shoppingMeals = plan.days.flatMap((day) => day.meals || []);
+  shoppingTitle = plannerMode === "week" ? "Einkauf für deinen Wochenplan" : "Einkauf für dein Drei-Gänge-Menü";
+  shoppingPeople.value = "1";
+  renderShoppingList();
+  if (typeof shoppingDialog.showModal === "function") shoppingDialog.showModal();
+  else shoppingDialog.setAttribute("open", "");
+}
+
+async function copyShoppingList() {
+  const engine = window.KuechenenergieShopping;
+  const groups = engine?.aggregate(shoppingMeals, Math.max(1, Number(shoppingPeople.value) || 1)) || [];
+  const text = engine?.text(groups, `${shoppingTitle} (${shoppingPeople.options[shoppingPeople.selectedIndex].text})`) || "";
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    document.body.append(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+  }
+  showToast("Einkaufsliste kopiert");
+}
+
+function printShoppingList() {
+  document.body.classList.add("printing-shopping");
+  shoppingPrintCleanup = () => {
+    document.body.classList.remove("printing-shopping");
+    shoppingPrintCleanup = null;
+  };
+  window.print();
+  window.setTimeout(() => shoppingPrintCleanup?.(), 600);
 }
 
 function recipeSearchText(recipe) {
@@ -885,6 +1126,7 @@ function updateWeekPlanControls() {
   const isWeek = plannerMode === "week";
   saveWeekPlanButton.hidden = !isWeek;
   saveWeekPlanButton.disabled = !isWeek || !plannerPlans.week;
+  createShoppingListButton.disabled = !plannerPlans[plannerMode];
 }
 
 function saveCurrentWeekPlan() {
@@ -1216,6 +1458,51 @@ function downloadCurrentRecipePdf() {
   }
 }
 
+document.querySelectorAll("[data-app-mode]").forEach((button) => {
+  button.addEventListener("click", () => setAppMode(button.dataset.appMode));
+});
+
+fridgeForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  addFridgeIngredients(fridgeInput.value);
+  fridgeInput.value = "";
+  fridgeInput.focus();
+});
+
+fridgeCommonChips.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-fridge-common]");
+  if (!button) return;
+  const label = button.dataset.fridgeCommon;
+  const key = normalizeSearchText(label);
+  if (fridgeIngredients.has(key)) fridgeIngredients.delete(key);
+  else fridgeIngredients.set(key, label);
+  renderFridgeSelection();
+  renderFridgeResults();
+});
+
+fridgeSelected.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-fridge]");
+  if (!button) return;
+  fridgeIngredients.delete(button.dataset.removeFridge);
+  renderFridgeSelection();
+  renderFridgeResults();
+});
+
+fridgeResults.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-fridge-recipe]");
+  if (button) openFridgeRecipe(button.dataset.fridgeRecipe);
+});
+
+createShoppingListButton.addEventListener("click", openShoppingList);
+shoppingPeople.addEventListener("change", renderShoppingList);
+document.querySelector("#copy-shopping-list").addEventListener("click", copyShoppingList);
+document.querySelector("#print-shopping-list").addEventListener("click", printShoppingList);
+document.querySelector("#close-shopping-list").addEventListener("click", () => shoppingDialog.close());
+shoppingDialog.addEventListener("click", (event) => {
+  if (event.target === shoppingDialog) shoppingDialog.close();
+});
+window.addEventListener("afterprint", () => shoppingPrintCleanup?.());
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   generateMeal(undefined, true);
@@ -1380,5 +1667,8 @@ restoreEnergyPreferences();
 updateControls();
 updateSavedList();
 showRecipePlaceholder();
+renderFridgeSelection();
+renderFridgeResults();
+setAppMode("planner");
 setPlannerMode("day");
 openRequestedWeekRecipe();
