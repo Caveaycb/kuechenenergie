@@ -1084,7 +1084,7 @@ searchResults.addEventListener("click", (event) => {
   generateMeal(recipe.id, true);
 });
 
-document.querySelector("#new-idea").addEventListener("click", () => generateMeal(undefined, false));
+document.querySelector("#new-idea").addEventListener("click", () => generateMeal(undefined, true));
 document.querySelector("#save-recipe").addEventListener("click", toggleSave);
 document.querySelector("#copy-list").addEventListener("click", copyIngredients);
 document.querySelector("#print-recipe").addEventListener("click", printCurrentRecipe);
