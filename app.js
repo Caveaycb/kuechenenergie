@@ -113,6 +113,8 @@ const allergenList = document.querySelector("#allergen-list");
 const plannerResult = document.querySelector("#planner-result");
 const plannerAnnouncement = document.querySelector("#planner-announcement");
 const generatePlanButton = document.querySelector("#generate-plan");
+const saveWeekPlanButton = document.querySelector("#save-week-plan");
+const savedWeekCount = document.querySelector("#saved-week-count");
 
 let currentMeal = null;
 let servings = 1;
@@ -122,6 +124,8 @@ let previousCourse = form.elements.course.value;
 let plannerMode = "day";
 let plannerPlans = { day: null, week: null };
 const plannerMealCache = new Map();
+const SAVED_WEEK_PLANS_KEY = "kuechenenergie-week-plans";
+const WEEKDAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
 
 const allergenLabels = {
   gluten: "Glutenhaltiges Getreide",
@@ -720,6 +724,104 @@ function createPlannerPlan(dayCount) {
   };
 }
 
+function readSavedWeekPlans() {
+  try {
+    const plans = JSON.parse(localStorage.getItem(SAVED_WEEK_PLANS_KEY) || "[]");
+    return Array.isArray(plans) ? plans : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeSavedWeekPlans(plans) {
+  try {
+    localStorage.setItem(SAVED_WEEK_PLANS_KEY, JSON.stringify(plans));
+    return true;
+  } catch {
+    showToast("Der Wochenplan konnte in diesem Browser nicht gespeichert werden.");
+    return false;
+  }
+}
+
+function compactPlanSummary(summary) {
+  return {
+    kcal: Math.round(summary.kcal),
+    protein: Math.round(summary.protein),
+    carbs: Math.round(summary.carbs),
+    fat: Math.round(summary.fat),
+    time: Math.round(summary.time),
+    kwh: Math.round(summary.kwh * 100) / 100,
+    cost: Math.round(summary.cost * 100) / 100
+  };
+}
+
+function serializeWeekPlan(plan) {
+  const savedAt = new Date();
+  const titleDate = new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(savedAt);
+  return {
+    id: `week-${savedAt.getTime()}-${Math.random().toString(36).slice(2, 7)}`,
+    name: `Wochenplan vom ${titleDate}`,
+    savedAt: savedAt.toISOString(),
+    config: {
+      diet: plan.config.diet,
+      cuisine: plan.config.cuisine,
+      maxTime: plan.config.maxTime,
+      exclude: [...plan.config.exclude],
+      energyPrice: plan.config.energyPrice,
+      appliance: plan.config.appliance
+    },
+    relaxedCuisine: plan.relaxedCuisine,
+    relaxedTime: plan.relaxedTime,
+    days: plan.days.map((day) => ({
+      dayIndex: day.dayIndex,
+      summary: compactPlanSummary(day.summary),
+      meals: day.meals.map((meal) => ({
+        recipeId: meal.recipe.id,
+        title: meal.recipe.title,
+        description: meal.recipe.description,
+        course: meal.recipe.course,
+        cuisine: meal.recipe.cuisine,
+        diet: meal.recipe.diet,
+        time: meal.recipe.time,
+        macros: {
+          kcal: Math.round(meal.macros.kcal),
+          protein: Math.round(meal.macros.protein),
+          carbs: Math.round(meal.macros.carbs),
+          fat: Math.round(meal.macros.fat)
+        },
+        allergens: allergensForMeal(meal)
+      }))
+    }))
+  };
+}
+
+function updateWeekPlanControls() {
+  const plans = readSavedWeekPlans();
+  savedWeekCount.textContent = String(plans.length);
+  const isWeek = plannerMode === "week";
+  saveWeekPlanButton.hidden = !isWeek;
+  saveWeekPlanButton.disabled = !isWeek || !plannerPlans.week;
+}
+
+function saveCurrentWeekPlan() {
+  const plan = plannerPlans.week;
+  if (!plan) {
+    showToast("Bitte zuerst einen Wochenplan erstellen.");
+    return;
+  }
+  const savedPlan = serializeWeekPlan(plan);
+  const plans = [savedPlan, ...readSavedWeekPlans()].slice(0, 20);
+  if (!writeSavedWeekPlans(plans)) return;
+  updateWeekPlanControls();
+  showToast("Wochenplan gespeichert");
+}
+
 function plannerSummaryMarkup(summary, prefix = "") {
   return `
     <div class="plan-summary" aria-label="${prefix || "Menü"} Nährwerte und Kochenergie">
@@ -751,6 +853,21 @@ function planRecipeMarkup(meal, cacheKey) {
     </article>`;
 }
 
+function weekCourseMarkup(meal, cacheKey) {
+  const panelId = `plan-allergens-${cacheKey}`;
+  plannerMealCache.set(cacheKey, meal);
+  return `
+    <div class="week-course-cell" role="cell">
+      <span class="week-course-label">${courseLabel(meal.recipe.course)}</span>
+      <div class="week-course-actions">
+        <button class="week-recipe-link" type="button" data-open-plan-recipe="${cacheKey}">${meal.recipe.title}</button>
+        <button class="week-allergen-toggle" type="button" data-plan-allergens="${panelId}" aria-expanded="false" aria-controls="${panelId}" aria-label="Allergene für ${meal.recipe.title} anzeigen">i</button>
+      </div>
+      <small>${Math.round(meal.macros.kcal)} kcal · ${Math.round(meal.macros.protein)} g Protein · ${meal.recipe.time} Min.</small>
+      <div class="plan-allergen-panel" id="${panelId}" hidden><strong>Allergene:</strong> ${allergenText(meal)}.</div>
+    </div>`;
+}
+
 function plannerRelaxationMarkup(plan) {
   if (!plan.relaxedCuisine && !plan.relaxedTime) return "";
   const details = [
@@ -774,17 +891,25 @@ function renderPlannerPlan() {
     return;
   }
 
-  const weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
   const total = plan.days.reduce((summary, day) => {
     Object.keys(summary).forEach((key) => { summary[key] += day.summary[key]; });
     return summary;
   }, { kcal: 0, protein: 0, carbs: 0, fat: 0, time: 0, kwh: 0, cost: 0 });
   const dailyAverage = Object.fromEntries(Object.entries(total).map(([key, value]) => [key, value / 7]));
-  plannerResult.innerHTML = `${plannerSummaryMarkup(dailyAverage, "Durchschnitt pro Tag")}${plannerRelaxationMarkup(plan)}<div class="week-plan">${plan.days.map((day, dayIndex) => `
-    <details class="week-day" ${dayIndex === 0 ? "open" : ""}>
-      <summary><span class="week-number">${dayIndex + 1}</span><span><strong>${weekdays[dayIndex]}</strong><small>${Math.round(day.summary.kcal)} kcal · ${Math.round(day.summary.protein)} g Protein · ${formatEnergyNumber(day.summary.kwh)} kWh</small></span><span aria-hidden="true">+</span></summary>
-      <div class="week-course-list">${day.meals.map((meal, mealIndex) => planRecipeMarkup(meal, `week-${dayIndex}-${mealIndex}`)).join("")}</div>
-    </details>`).join("")}</div>`;
+  plannerResult.innerHTML = `${plannerSummaryMarkup(dailyAverage, "Ø pro Tag")}${plannerRelaxationMarkup(plan)}
+    <div class="week-overview" role="table" aria-label="Wochenplan mit sieben Tagen">
+      <div class="week-overview-head" role="row">
+        <span role="columnheader">Tag</span><span role="columnheader">Vorspeise</span><span role="columnheader">Hauptspeise</span><span role="columnheader">Dessert</span>
+      </div>
+      ${plan.days.map((day, dayIndex) => `
+        <article class="week-overview-row" role="row">
+          <div class="week-day-label" role="rowheader">
+            <span class="week-number">${dayIndex + 1}</span>
+            <div><strong>${WEEKDAYS[dayIndex]}</strong><small>${Math.round(day.summary.kcal)} kcal · ${Math.round(day.summary.protein)} g Protein<br>${formatEnergyNumber(day.summary.kwh)} kWh · ${formatEnergyNumber(day.summary.cost)} €</small></div>
+          </div>
+          ${day.meals.map((meal, mealIndex) => weekCourseMarkup(meal, `week-${dayIndex}-${mealIndex}`)).join("")}
+        </article>`).join("")}
+    </div>`;
 }
 
 function setPlannerMode(mode) {
@@ -799,6 +924,7 @@ function setPlannerMode(mode) {
     : "Deine Zielspanne dient als Mahlzeitbasis; daraus entsteht ein realistischer Tagesrahmen im Verhältnis 20 / 60 / 20.";
   document.querySelector("#generate-plan-label").textContent = isWeek ? "Wochenplan erstellen" : "Tagesplan erstellen";
   renderPlannerPlan();
+  updateWeekPlanControls();
 }
 
 function generatePlannerPlan() {
@@ -812,6 +938,7 @@ function generatePlannerPlan() {
     plannerResult.setAttribute("aria-busy", "false");
     generatePlanButton.disabled = false;
     document.querySelector("#generate-plan-label").textContent = plannerMode === "week" ? "Wochenplan neu mischen" : "Tagesplan neu mischen";
+    updateWeekPlanControls();
     plannerAnnouncement.textContent = plan
       ? `${plannerMode === "week" ? "Wochenplan mit sieben Menüs" : "Tagesplan mit drei Gängen"} wurde erstellt.`
       : "Mit den aktuellen Ausschlüssen konnte kein vollständiger Menüplan erstellt werden.";
@@ -1099,6 +1226,11 @@ document.querySelectorAll("[data-planner-mode]").forEach((button) => {
   button.addEventListener("click", () => setPlannerMode(button.dataset.plannerMode));
 });
 generatePlanButton.addEventListener("click", generatePlannerPlan);
+saveWeekPlanButton.addEventListener("click", saveCurrentWeekPlan);
+window.addEventListener("storage", (event) => {
+  if (event.key === SAVED_WEEK_PLANS_KEY) updateWeekPlanControls();
+});
+window.addEventListener("pageshow", updateWeekPlanControls);
 plannerResult.addEventListener("click", (event) => {
   const allergenButton = event.target.closest("[data-plan-allergens]");
   if (allergenButton) {

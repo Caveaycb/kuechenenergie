@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gespeicherte Wochenpläne aus Küchenenergie ansehen, drucken und verwalten." />
+    <title>Gespeicherte Wochenpläne – Küchenenergie</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="saved-plans-page">
+    <a class="skip-link" href="#saved-week-plans-list">Direkt zu den gespeicherten Plänen</a>
+    <div class="noise" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="Zur Küchenenergie Startseite">
+        <span class="brand-copy">
+          <strong>Küchenenergie</strong>
+          <small>Fitnessküche · #einsvoraus</small>
+        </span>
+      </a>
+      <a class="button saved-plans-header-action" href="index.html#menu-planner">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" /></svg>
+        Neuen Plan erstellen
+      </a>
+    </header>
+
+    <main class="saved-plans-main">
+      <section class="saved-plans-hero" aria-labelledby="saved-plans-title">
+        <div>
+          <p class="section-kicker">DEINE WOCHE · DEINE ENERGIE</p>
+          <h1 id="saved-plans-title">Deine gespeicherten Wochen.</h1>
+          <p>Hier findest du deine Wochenpläne gesammelt an einem ruhigen Ort. Öffne nur den Plan, den du gerade brauchst, oder drucke ihn direkt aus.</p>
+        </div>
+        <div class="saved-plans-count" aria-label="Anzahl gespeicherter Wochenpläne">
+          <strong id="saved-plan-page-count">0</strong>
+          <span id="saved-plan-page-label">gespeicherte Pläne</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="saved-list-title">
+        <div class="saved-plans-toolbar">
+          <div>
+            <span class="step-label">Dein Archiv</span>
+            <h2 id="saved-list-title">Wochenpläne im Überblick</h2>
+          </div>
+          <p>Deine Pläne bleiben lokal in diesem Browser auf diesem Gerät gespeichert. Es werden keine Daten an einen Server übertragen.</p>
+        </div>
+        <p class="sr-only" id="saved-plans-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="saved-plans-list" id="saved-week-plans-list"></div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Küchenenergie</span>
+      <p>Fitnessküche, die zu deinem Alltag passt.</p>
+      <small>Gespeicherte Wochenpläne sind nur in diesem Browser verfügbar. Nährwerte bleiben alltagstaugliche Näherungswerte.</small>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="wochenplaene.js"></script>
+  </body>
+</html>

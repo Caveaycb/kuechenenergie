@@ -499,9 +499,16 @@
             <h2 id="planner-title">Vom einzelnen Rezept zum fertigen Menü.</h2>
             <p>Ernährungsweise, Küchenstil, Zeit und Ausschlüsse werden aus deiner aktuellen Auswahl übernommen.</p>
           </div>
-          <div class="planner-switch" role="group" aria-label="Planungszeitraum wählen">
-            <button type="button" data-planner-mode="day" aria-pressed="true">Tagesplan</button>
-            <button type="button" data-planner-mode="week" aria-pressed="false">Wochenplan</button>
+          <div class="planner-heading-actions">
+            <div class="planner-switch" role="group" aria-label="Planungszeitraum wählen">
+              <button type="button" data-planner-mode="day" aria-pressed="true">Tagesplan</button>
+              <button type="button" data-planner-mode="week" aria-pressed="false">Wochenplan</button>
+            </div>
+            <a class="planner-library-link" href="wochenplaene.html">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5" /></svg>
+              Gespeicherte Pläne
+              <span id="saved-week-count">0</span>
+            </a>
           </div>
         </div>
 
@@ -510,10 +517,16 @@
             <strong id="planner-mode-title">Dein Drei-Gänge-Tag</strong>
             <p id="planner-mode-copy">Deine Zielspanne dient als Mahlzeitbasis; daraus entsteht ein realistischer Tagesrahmen im Verhältnis 20 / 60 / 20.</p>
           </div>
-          <button class="button planner-generate" id="generate-plan" type="button">
-            <span aria-hidden="true">⚡</span>
-            <span id="generate-plan-label">Tagesplan erstellen</span>
-          </button>
+          <div class="planner-toolbar-actions">
+            <button class="button planner-save" id="save-week-plan" type="button" hidden disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 4v6h8V4M8 17h8" /></svg>
+              Wochenplan speichern
+            </button>
+            <button class="button planner-generate" id="generate-plan" type="button">
+              <span aria-hidden="true">⚡</span>
+              <span id="generate-plan-label">Tagesplan erstellen</span>
+            </button>
+          </div>
         </div>
 
         <p class="sr-only" id="planner-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
