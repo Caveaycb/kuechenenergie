@@ -25,7 +25,7 @@
 
       <div class="header-actions">
         <span class="header-note"><strong id="header-recipe-count">600</strong> Grundrezepte. Über 24.000 passende Varianten.</span>
-        <button class="button button-quiet saved-trigger" id="open-saved" type="button">
+        <button class="button button-quiet saved-trigger" id="open-saved" type="button" aria-label="Merkliste öffnen">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z" /></svg>
           Merkliste <span class="saved-count" id="saved-count">0</span>
         </button>
@@ -33,16 +33,52 @@
     </header>
 
     <main id="top">
-      <section class="intro" aria-labelledby="page-title">
-        <div>
+      <section class="intro hero-banner" aria-labelledby="page-title">
+        <div class="hero-copy">
           <p class="eyebrow"><span></span> #einsvoraus auf dem Teller</p>
-          <h1 id="page-title">Energie, die<br /><em>zu dir passt.</em></h1>
+          <h1 id="page-title">Energie, die <br /><em>zu dir passt.</em></h1>
+          <p class="intro-copy">
+            Wähle deine Zielwerte und Vorlieben. Küchenenergie findet daraus ein
+            vollständiges Rezept aus 600 eigenentwickelten Grundgerichten – alltagstauglich,
+            abwechslungsreich und passend zu deinen Makros.
+          </p>
+          <div class="hero-facts" aria-label="Vorteile von Küchenenergie">
+            <span><strong>600</strong> Grundrezepte</span>
+            <span><strong>24.000+</strong> Kombinationen</span>
+            <span><strong>1 Klick</strong> bis zum Rezept</span>
+          </div>
         </div>
-        <p class="intro-copy">
-          Wähle deine Zielwerte und Vorlieben. Küchenenergie findet daraus ein
-          vollständiges Rezept aus 600 eigenentwickelten Grundgerichten – alltagstauglich,
-          abwechslungsreich und passend zu deinen Makros.
-        </p>
+
+        <div class="hero-stage" aria-hidden="true">
+          <span class="hero-orbit hero-orbit-outer"><i></i><i></i><i></i></span>
+          <span class="hero-orbit hero-orbit-inner"><i></i><i></i></span>
+          <span class="hero-spark hero-spark-one"></span>
+          <span class="hero-spark hero-spark-two"></span>
+          <span class="hero-spark hero-spark-three"></span>
+
+          <div class="hero-dish">
+            <span class="hero-dish-glow"></span>
+            <span class="hero-steam hero-steam-one"></span>
+            <span class="hero-steam hero-steam-two"></span>
+            <span class="hero-steam hero-steam-three"></span>
+            <span class="hero-plate"></span>
+            <span class="hero-bowl">
+              <i class="hero-food hero-food-one"></i>
+              <i class="hero-food hero-food-two"></i>
+              <i class="hero-food hero-food-three"></i>
+              <i class="hero-food hero-food-four"></i>
+              <i class="hero-leaf hero-leaf-one"></i>
+              <i class="hero-leaf hero-leaf-two"></i>
+            </span>
+            <svg class="hero-bolt" viewBox="0 0 40 58" focusable="false">
+              <path d="M23.8 2 5 31.8h13.2L14.7 56 35 24.1H21.9L23.8 2Z" />
+            </svg>
+          </div>
+
+          <div class="hero-data hero-data-protein"><small>Protein</small><strong>45 g</strong><span></span></div>
+          <div class="hero-data hero-data-energy"><small>Kochenergie</small><strong>0,4 kWh</strong><span></span></div>
+          <div class="hero-data hero-data-match"><span>✓</span><strong>Passt zu dir</strong></div>
+        </div>
       </section>
 
       <div class="builder-layout">
