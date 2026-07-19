@@ -2938,7 +2938,14 @@ footer small {
     right: -45px;
   }
   .recipe-visual::after { width: 140px; height: 140px; right: 45px; bottom: -48px; }
-  .food-art { right: 50%; bottom: 125px; transform: translateX(50%) scale(0.84); transform-origin: center bottom; }
+  .food-art {
+    top: 70px;
+    right: 50%;
+    bottom: auto;
+    pointer-events: none;
+    transform: translateX(50%) scale(0.72);
+    transform-origin: center top;
+  }
   .visual-copy { width: 100%; margin-top: 235px; }
   .visual-copy h2 { font-size: 34px; }
   .visual-copy > p:nth-of-type(2) { margin: 11px 0 16px; }
