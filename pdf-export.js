@@ -137,11 +137,21 @@
     const cuisine = recipe.cuisine || "Alltagsküche";
     const meta = `${courseLabel(recipe.course)} · ${cuisine} · ${dietLabel(recipe.diet)} · ${recipe.time} Min. · ${recipe.level}`;
     const macroLine = `${Math.round(macros.kcal)} kcal · ${Math.round(macros.protein)} g Protein · ${Math.round(macros.carbs)} g Kohlenhydrate · ${Math.round(macros.fat)} g Fett pro Portion`;
+    const adaptationParts = [];
+    if (Math.abs(meal.scale - 1) >= 0.02) adaptationParts.push(`Portionsbasis ${Math.round(meal.scale * 100)} %`);
+    if (meal.boosterAmount) adaptationParts.push(`${formatAmount(meal.boosterAmount, meal.booster.unit)} ${meal.booster.unit} ${meal.booster.name} als Protein-Extra`);
+    if (meal.energyBoosterAmount) adaptationParts.push(`${formatAmount(meal.energyBoosterAmount, meal.energyBooster.unit)} ${meal.energyBooster.unit} ${meal.energyBooster.name} als Energie-Beilage`);
 
     addText("KÜCHENENERGIE", { font: "bold", size: 9, leading: 12, color: "0.91 0.37 0.06", after: 8 });
     addText(recipe.title, { font: "bold", size: 22, leading: 27, color: "0.06 0.06 0.06", after: 8 });
     addText(meta, { font: "bold", size: 9, leading: 12, color: "0.30 0.37 0.33", after: 5 });
     addText(macroLine, { size: 9, leading: 12, color: "0.30 0.37 0.33", after: 12 });
+    addText(
+      adaptationParts.length
+        ? `Anpassung des Grundrezepts: ${adaptationParts.join(" · ")}.`
+        : "Dieses Grundrezept passt ohne zusätzliche Makro-Extras in die Zielspanne.",
+      { size: 8.5, leading: 12, color: "0.00 0.48 0.70", after: 8 }
+    );
     addText(recipe.description, { size: 10.5, leading: 15, after: 5 });
     if (meal.energy) {
       const { primary, alternative, priceCents } = meal.energy;
@@ -184,7 +194,7 @@
       font: "bold", size: 12, leading: 16, color: "0.06 0.06 0.06", before: 11, after: 4
     });
     addText(coachTip, { size: 10, leading: 14.5, after: 14 });
-    addText("Nährwerte und Energieverbrauch sind Näherungswerte und können je nach Produkt, Gerät und Zubereitung abweichen.", {
+    addText("Küchenenergie-Eigenentwicklung ohne übernommene Fremdtexte oder Fremdbilder. Nährwerte und Energieverbrauch sind Näherungswerte und können je nach Produkt, Gerät und Zubereitung abweichen.", {
       size: 8, leading: 11, color: "0.42 0.45 0.43"
     });
 

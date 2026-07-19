@@ -1185,6 +1185,21 @@ input[type="range"]::-moz-range-thumb {
   transition: width 450ms ease;
 }
 
+.adaptation-note {
+  margin: 14px 0 0;
+  padding: 10px 13px;
+  color: #46534e;
+  background: #f3f5f4;
+  border-left: 3px solid var(--blue);
+  border-radius: 0 9px 9px 0;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.adaptation-note.is-direct {
+  border-left-color: var(--green);
+}
+
 .energy-insight {
   margin-top: 26px;
   padding: 23px;

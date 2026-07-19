@@ -93,6 +93,28 @@
           && Boolean(recipe.cuisine)
           && ["omnivore", "vegetarian", "vegan"].includes(recipe.diet)
           && Array.isArray(recipe.allergens)
+      },
+      {
+        id: "identity",
+        label: "Natürlich benanntes, eindeutig identifizierbares Grundrezept",
+        passed: typeof recipe.id === "string"
+          && typeof recipe.baseRecipeId === "string"
+          && typeof recipe.title === "string"
+          && recipe.title.length >= 8
+          && recipe.title.length <= 80
+      },
+      {
+        id: "variation",
+        label: "Gerichtsfamilie und passende Anpassungsregeln vorhanden",
+        passed: Boolean(recipe.family)
+          && Boolean(recipe.variantPolicy?.proteinBooster)
+          && Boolean(recipe.variantPolicy?.energyBooster)
+      },
+      {
+        id: "provenance",
+        label: "Herkunft und Fremdinhalte nachvollziehbar dokumentiert",
+        passed: recipe.provenance?.type === "original"
+          && recipe.provenance?.externalContentUsed === false
       }
     ];
     const score = Math.round((checks.filter((check) => check.passed).length / checks.length) * 100);
@@ -100,18 +122,27 @@
     return {
       passed: checks.every((check) => check.passed),
       score,
-      editorial: true,
-      label: "Redaktionell geprüft",
+      editorial: false,
+      automated: true,
+      label: "Automatisch qualitätsgeprüft",
       checks: checks.filter((check) => check.passed).map((check) => check.label),
-      note: "Das Rezept wurde auf Zutaten, Mengen, Zubereitung, Makros, Zeit und Metadaten geprüft und bei Bedarf vereinheitlicht."
+      note: "Das Rezept wurde automatisiert auf Zutaten, Mengen, Zubereitung, Makros, Zeit und Metadaten geprüft. Eine menschliche Freigabe wird getrennt dokumentiert."
     };
   }
 
   function prepare(recipes) {
+    const seenIds = new Set();
+    const seenTitles = new Set();
     return recipes.map((recipe) => {
       const reviewed = review(recipe);
       return { ...reviewed, quality: inspect(reviewed) };
-    }).filter((recipe) => recipe.quality.passed);
+    }).filter((recipe) => {
+      const titleKey = recipe.title.toLocaleLowerCase("de-DE");
+      const unique = !seenIds.has(recipe.id) && !seenTitles.has(titleKey);
+      seenIds.add(recipe.id);
+      seenTitles.add(titleKey);
+      return unique && recipe.quality.passed;
+    });
   }
 
   global.KuechenenergieQuality = { prepare, inspect, review };
