@@ -914,7 +914,6 @@ function plannerSummaryMarkup(summary, prefix = "") {
 }
 
 function planRecipeMarkup(meal, cacheKey) {
-  const panelId = `plan-allergens-${cacheKey}`;
   const icon = meal.recipe.course === "starter" ? "🥗" : meal.recipe.course === "dessert" ? "🍮" : "🍽️";
   plannerMealCache.set(cacheKey, meal);
   return `
@@ -925,24 +924,19 @@ function planRecipeMarkup(meal, cacheKey) {
       <div class="plan-macros" aria-label="Nährwerte"><span>${Math.round(meal.macros.kcal)} kcal</span><span>${Math.round(meal.macros.protein)} g Protein</span><span>${meal.recipe.time} Min.</span></div>
       <div class="plan-card-actions">
         <button type="button" data-open-plan-recipe="${cacheKey}">Rezept öffnen</button>
-        <button type="button" data-plan-allergens="${panelId}" aria-expanded="false" aria-controls="${panelId}">Allergene</button>
       </div>
-      <div class="plan-allergen-panel" id="${panelId}" hidden><strong>Enthalten:</strong> ${allergenText(meal)}. Packungsangaben zusätzlich prüfen.</div>
     </article>`;
 }
 
 function weekCourseMarkup(meal, cacheKey) {
-  const panelId = `plan-allergens-${cacheKey}`;
   plannerMealCache.set(cacheKey, meal);
   return `
     <div class="week-course-cell" role="cell">
       <span class="week-course-label">${courseLabel(meal.recipe.course)}</span>
       <div class="week-course-actions">
         <button class="week-recipe-link" type="button" data-open-plan-recipe="${cacheKey}">${meal.recipe.title}</button>
-        <button class="week-allergen-toggle" type="button" data-plan-allergens="${panelId}" aria-expanded="false" aria-controls="${panelId}" aria-label="Allergene für ${meal.recipe.title} anzeigen">i</button>
       </div>
       <small>${Math.round(meal.macros.kcal)} kcal · ${Math.round(meal.macros.protein)} g Protein · ${meal.recipe.time} Min.</small>
-      <div class="plan-allergen-panel" id="${panelId}" hidden><strong>Allergene:</strong> ${allergenText(meal)}.</div>
     </div>`;
 }
 
@@ -1310,15 +1304,6 @@ window.addEventListener("storage", (event) => {
 });
 window.addEventListener("pageshow", updateWeekPlanControls);
 plannerResult.addEventListener("click", (event) => {
-  const allergenButton = event.target.closest("[data-plan-allergens]");
-  if (allergenButton) {
-    const panel = document.getElementById(allergenButton.dataset.planAllergens);
-    const expanded = allergenButton.getAttribute("aria-expanded") === "true";
-    allergenButton.setAttribute("aria-expanded", String(!expanded));
-    if (panel) panel.hidden = expanded;
-    return;
-  }
-
   const recipeButton = event.target.closest("[data-open-plan-recipe]");
   if (!recipeButton) return;
   const meal = plannerMealCache.get(recipeButton.dataset.openPlanRecipe);

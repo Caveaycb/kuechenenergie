@@ -13,20 +13,6 @@ const MAIN_PAGE_FILE = /Kuechenenergie-Wochenplaene\.html$/i.test(window.locatio
 let toastTimer;
 let printCleanup = null;
 
-const allergenLabels = {
-  gluten: "Glutenhaltiges Getreide",
-  laktose: "Milch / Laktose",
-  "nüsse": "Schalenfrüchte",
-  soja: "Soja",
-  fisch: "Fisch",
-  ei: "Ei",
-  senf: "Senf",
-  sellerie: "Sellerie",
-  sesam: "Sesam",
-  "erdnüsse": "Erdnüsse",
-  krebstiere: "Krebstiere"
-};
-
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"]/g, (character) => ({
     "&": "&amp;",
@@ -109,17 +95,6 @@ function savedDate(value) {
   }).format(date);
 }
 
-function allergensMarkup(meal, planId, dayIndex, mealIndex) {
-  const allergens = Array.isArray(meal.allergens) ? meal.allergens : [];
-  const panelId = `saved-allergens-${planId}-${dayIndex}-${mealIndex}`.replace(/[^a-zA-Z0-9_-]/g, "-");
-  const text = allergens.length
-    ? allergens.map((allergen) => allergenLabels[allergen] || allergen).join(", ")
-    : "Keine automatisch erfassten Hauptallergene";
-  return `
-    <button class="saved-plan-allergen-button" type="button" data-saved-allergens="${panelId}" aria-expanded="false" aria-controls="${panelId}">Allergene anzeigen</button>
-    <div class="saved-plan-allergen-panel" id="${panelId}" hidden><strong>Hinweis:</strong> ${escapeHtml(text)}. Packungsangaben zusätzlich prüfen.</div>`;
-}
-
 function recipeHref(planId, dayIndex, mealIndex) {
   const params = new URLSearchParams({
     weekPlan: planId,
@@ -137,7 +112,6 @@ function mealMarkup(meal, planId, dayIndex, mealIndex) {
       <h4>${escapeHtml(meal.title || "Unbenanntes Gericht")}</h4>
       <p>${number(macros.kcal)} kcal · ${number(macros.protein)} g Protein · ${number(meal.time)} Min.</p>
       <a class="saved-plan-recipe-link" href="${escapeHtml(recipeHref(planId, dayIndex, mealIndex))}">Rezept öffnen <span aria-hidden="true">→</span></a>
-      ${allergensMarkup(meal, planId, dayIndex, mealIndex)}
     </article>`;
 }
 
@@ -245,15 +219,6 @@ savedPlansList.addEventListener("click", (event) => {
     weekToggle.querySelector("i").textContent = expanded ? "+" : "−";
     if (panel) panel.hidden = expanded;
     announcement.textContent = expanded ? "Der Wochenplan wurde geschlossen." : "Der Wochenplan mit sieben Tagen wurde geöffnet.";
-    return;
-  }
-  const allergenButton = event.target.closest("[data-saved-allergens]");
-  if (allergenButton) {
-    const panel = document.getElementById(allergenButton.dataset.savedAllergens);
-    const expanded = allergenButton.getAttribute("aria-expanded") === "true";
-    allergenButton.setAttribute("aria-expanded", String(!expanded));
-    allergenButton.textContent = expanded ? "Allergene anzeigen" : "Allergene ausblenden";
-    if (panel) panel.hidden = expanded;
     return;
   }
   const deleteButton = event.target.closest("[data-delete-plan]");

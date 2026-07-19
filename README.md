@@ -16,8 +16,8 @@ Tagesmenüs mit zusammen 21 Rezepten und weist Nährwerte sowie geschätzte
 Kochenergie aus. Wochenpläne lassen sich lokal im jeweiligen Browser speichern
 und auf einer eigenen, kompakten Unterseite ansehen, drucken oder löschen. Jedes
 Gericht eines gespeicherten Plans lässt sich von dort wieder als vollständiges
-Rezept mit den zugehörigen Mengen und Zubereitungsschritten öffnen.
-Allergene lassen sich am Einzelrezept und in jedem Plan per Knopfdruck einblenden.
+Rezept mit den zugehörigen Mengen und Zubereitungsschritten öffnen. Allergene werden
+bewusst erst in der geöffneten Rezeptkarte per Knopfdruck ausgewiesen.
 
 Jedes Rezept enthält mindestens sechs ausführliche Arbeitsschritte inklusive
 Vorbereitung, Garprobe, Abschmecken und Servierhinweisen.
