@@ -89,7 +89,7 @@
       {
         id: "metadata",
         label: "Gang, Küche, Ernährungsform und Allergene geprüft",
-        passed: ["starter", "main", "dessert"].includes(recipe.course)
+        passed: ["starter", "main", "dessert", "snack"].includes(recipe.course)
           && Boolean(recipe.cuisine)
           && ["omnivore", "vegetarian", "vegan"].includes(recipe.diet)
           && Array.isArray(recipe.allergens)

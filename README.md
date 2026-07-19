@@ -2,13 +2,19 @@
 
 **Online ausprobieren:** [caveaycb.github.io/kuechenenergie](https://caveaycb.github.io/kuechenenergie/)
 
-Ein responsiver Mahlzeiten-Konfigurator im eins-energie-Look mit 600 eigenständigen
-Grundrezepten und mehr als 24.000 möglichen Makro-Anpassungen. Aus Kalorien- und
+Ein responsiver Mahlzeiten-Konfigurator im eins-energie-Look mit 624 eigenständigen
+Grundrezepten und 24.960 möglichen Makro-Anpassungen. Aus Kalorien- und
 Proteinspanne, Gang, Ernährungsweise, Küchenstil, Zeitlimit und Ausschlüssen entsteht
 ein vollständiges Rezept mit Zutatenliste und Zubereitung. Der Katalog enthält
-105 Vorspeisen, 395 Hauptspeisen und 100 Desserts. Dazu gehören 30 separat
-recherchierte Gerichte im Küchenstil „Typisch sächsisch“. Die Gerichte verwenden
+105 Vorspeisen, 395 Hauptspeisen, 100 Desserts und 24 schnelle Snacks. Dazu gehören
+31 separat recherchierte Gerichte im Küchenstil „Typisch sächsisch“. Die Gerichte verwenden
 überwiegend alltagstaugliche Zutaten aus deutschen Supermärkten.
+
+Ein Tagesplaner kombiniert Vorspeise, Hauptspeise und Dessert zu einem
+Drei-Gänge-Menü. Der Wochenplaner erzeugt sieben möglichst abwechslungsreiche
+Tagesmenüs mit zusammen 21 Rezepten und weist Nährwerte sowie geschätzte
+Kochenergie aus. Allergene lassen sich am Einzelrezept und in jedem Plan per
+Knopfdruck einblenden.
 
 Jedes Rezept enthält mindestens sechs ausführliche Arbeitsschritte inklusive
 Vorbereitung, Garprobe, Abschmecken und Servierhinweisen.
@@ -56,7 +62,7 @@ Danach ist die App unter `http://localhost:8765` erreichbar.
 
 Der Katalog trennt echte Grundrezepte von automatisch berechneten Varianten. Jedes
 Grundrezept besitzt einen natürlichen Namen, eine eigene Zutatenliste, eine von
-77 passenden Zubereitungsfamilien und rezeptverträgliche Regeln für Protein- und
+87 passenden Zubereitungsfamilien und rezeptverträgliche Regeln für Protein- und
 Energieanpassungen. Eine angepasste Portionsgröße oder zusätzliche Beilage wird
 nicht als neues Grundrezept gezählt.
 
@@ -65,7 +71,8 @@ Bewertungen und strukturierte Rezeptdaten fremder Plattformen – insbesondere v
 Chefkoch – werden weder automatisiert ausgelesen noch übernommen. Eine spätere
 Einbindung externer Inhalte setzt eine dokumentierte Lizenz oder Kooperation voraus.
 Die sächsische Recherche und die Abgrenzung geschützter Produktbezeichnungen sind
-in `SAECHSISCHE-RECHERCHE.md` dokumentiert.
+in `SAECHSISCHE-RECHERCHE.md` dokumentiert. Die Kategorie- und Marktbeobachtung
+für schnelle Snacks steht in `SNACK-RECHERCHE.md`.
 
 Kalorien werden konsistent aus Protein, Kohlenhydraten und Fett berechnet. Die
 Zutatenmengen werden innerhalb realistischer Grenzen an die gewählten Kalorien-

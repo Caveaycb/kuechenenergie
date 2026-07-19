@@ -62,6 +62,13 @@
       if (/pudding|creme|mousse/.test(title)) return "🍮";
       return "🍨";
     }
+    if (recipe.course === "snack") {
+      if (/shake/.test(title)) return "🥤";
+      if (/spieß/.test(title)) return "🍢";
+      if (/porridge|tasse/.test(title)) return "🥣";
+      if (/happen|banane|apfel|beere/.test(title)) return "🍎";
+      return recipe.emoji || "🥙";
+    }
     if (/bowl|salat/.test(title)) return "🥗";
     if (/curry/.test(title)) return "🍛";
     if (/pasta/.test(title)) return "🍝";

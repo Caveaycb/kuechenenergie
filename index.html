@@ -24,7 +24,7 @@
       </a>
 
       <div class="header-actions">
-        <span class="header-note"><strong id="header-recipe-count">600</strong> Rezepte <i></i> 24.000+ Varianten</span>
+        <span class="header-note"><strong id="header-recipe-count">624</strong> Rezepte <i></i> 24.960 Varianten</span>
         <button class="button button-quiet saved-trigger" id="open-saved" type="button" aria-label="Merkliste öffnen">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z" /></svg>
           Merkliste <span class="saved-count" id="saved-count">0</span>
@@ -39,12 +39,12 @@
           <h1 id="page-title">Energie, die <br /><em>zu dir passt.</em></h1>
           <p class="intro-copy">
             Wähle deine Zielwerte und Vorlieben. Küchenenergie findet daraus ein
-            vollständiges Rezept aus 600 eigenentwickelten Grundgerichten – alltagstauglich,
+            vollständiges Rezept aus 624 eigenentwickelten Grundgerichten – alltagstauglich,
             abwechslungsreich und passend zu deinen Makros.
           </p>
           <div class="hero-facts" aria-label="Vorteile von Küchenenergie">
-            <span><strong>600</strong> Grundrezepte</span>
-            <span><strong>24.000+</strong> Kombinationen</span>
+            <span><strong>624</strong> Grundrezepte</span>
+            <span><strong>24.960</strong> Kombinationen</span>
             <span><strong>1 Klick</strong> bis zum Rezept</span>
           </div>
         </div>
@@ -132,10 +132,10 @@
                 </span>
                 <div class="dual-range calorie-dual" id="calorie-range">
                   <span class="range-track" aria-hidden="true"></span>
-                  <input id="calories-min" name="caloriesMin" aria-label="Minimale Kalorien" type="range" min="350" max="950" step="25" value="550" />
-                  <input id="calories-max" name="caloriesMax" aria-label="Maximale Kalorien" type="range" min="350" max="950" step="25" value="750" />
+                  <input id="calories-min" name="caloriesMin" aria-label="Minimale Kalorien" type="range" min="100" max="950" step="25" value="550" />
+                  <input id="calories-max" name="caloriesMax" aria-label="Maximale Kalorien" type="range" min="100" max="950" step="25" value="750" />
                 </div>
-                <span class="range-scale"><span>350</span><span>950 kcal</span></span>
+                <span class="range-scale"><span>100</span><span>950 kcal</span></span>
               </div>
 
               <div class="range-control protein-control">
@@ -145,10 +145,10 @@
                 </span>
                 <div class="dual-range protein-dual" id="protein-range">
                   <span class="range-track" aria-hidden="true"></span>
-                  <input id="protein-min" name="proteinMin" aria-label="Minimales Protein" type="range" min="20" max="80" step="5" value="35" />
-                  <input id="protein-max" name="proteinMax" aria-label="Maximales Protein" type="range" min="20" max="80" step="5" value="55" />
+                  <input id="protein-min" name="proteinMin" aria-label="Minimales Protein" type="range" min="5" max="80" step="5" value="35" />
+                  <input id="protein-max" name="proteinMax" aria-label="Maximales Protein" type="range" min="5" max="80" step="5" value="55" />
                 </div>
-                <span class="range-scale"><span>20</span><span>80 g</span></span>
+                <span class="range-scale"><span>5</span><span>80 g</span></span>
               </div>
             </fieldset>
 
@@ -163,6 +163,8 @@
                 <label for="course-main">Hauptspeise</label>
                 <input type="radio" name="course" id="course-dessert" value="dessert" />
                 <label for="course-dessert">Dessert</label>
+                <input type="radio" name="course" id="course-snack" value="snack" />
+                <label for="course-snack">Snacks</label>
               </div>
             </fieldset>
 
@@ -266,7 +268,7 @@
               <span class="generate-label">Rezept für mich finden</span>
               <svg class="generate-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5" /></svg>
             </button>
-            <p class="form-hint" id="available-count" aria-live="polite">600 Grundrezepte mit adaptiven Varianten</p>
+            <p class="form-hint" id="available-count" aria-live="polite">624 Grundrezepte mit adaptiven Varianten</p>
           </form>
         </aside>
 
@@ -363,6 +365,18 @@
               <p class="adaptation-note" id="adaptation-note">
                 Grundrezept und Mengen werden transparent an deine Zielspanne angepasst.
               </p>
+
+              <section class="allergen-disclosure" aria-labelledby="allergen-heading">
+                <button class="allergen-toggle" id="allergen-toggle" type="button" aria-expanded="false" aria-controls="allergen-panel">
+                  <span class="allergen-toggle-icon" aria-hidden="true">i</span>
+                  <span><strong id="allergen-heading">Allergene ausweisen</strong><small id="allergen-count">Angaben zum Rezept öffnen</small></span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5" /></svg>
+                </button>
+                <div class="allergen-panel" id="allergen-panel" hidden>
+                  <ul class="allergen-list" id="allergen-list"></ul>
+                  <p>Automatisch aus den Zutaten abgeleitet. Bitte prüfe bei Allergien zusätzlich immer die Angaben auf den verwendeten Packungen.</p>
+                </div>
+              </section>
 
               <section class="energy-insight" aria-labelledby="energy-heading">
                 <div class="energy-heading-row">
@@ -477,12 +491,45 @@
           </div>
         </section>
       </div>
+
+      <section class="planner-section" id="menu-planner" aria-labelledby="planner-title">
+        <div class="planner-heading">
+          <div>
+            <p class="section-kicker">DEINE WOCHE · DEINE ENERGIE</p>
+            <h2 id="planner-title">Vom einzelnen Rezept zum fertigen Menü.</h2>
+            <p>Ernährungsweise, Küchenstil, Zeit und Ausschlüsse werden aus deiner aktuellen Auswahl übernommen.</p>
+          </div>
+          <div class="planner-switch" role="group" aria-label="Planungszeitraum wählen">
+            <button type="button" data-planner-mode="day" aria-pressed="true">Tagesplan</button>
+            <button type="button" data-planner-mode="week" aria-pressed="false">Wochenplan</button>
+          </div>
+        </div>
+
+        <div class="planner-toolbar">
+          <div>
+            <strong id="planner-mode-title">Dein Drei-Gänge-Tag</strong>
+            <p id="planner-mode-copy">Deine Zielspanne dient als Mahlzeitbasis; daraus entsteht ein realistischer Tagesrahmen im Verhältnis 20 / 60 / 20.</p>
+          </div>
+          <button class="button planner-generate" id="generate-plan" type="button">
+            <span aria-hidden="true">⚡</span>
+            <span id="generate-plan-label">Tagesplan erstellen</span>
+          </button>
+        </div>
+
+        <p class="sr-only" id="planner-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="planner-result" id="planner-result">
+          <div class="planner-empty">
+            <span aria-hidden="true">7</span>
+            <div><strong>Noch kein Plan auf dem Tisch.</strong><p>Wähle Tages- oder Wochenplan und lass dir passende Menüs zusammenstellen.</p></div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer>
       <span>Küchenenergie</span>
       <p>Fitnessküche, die zu deinem Alltag passt.</p>
-      <small>600 eigenentwickelte Grundrezepte ohne übernommene Fremdtexte oder Fremdbilder. Nährwerte sind alltagstaugliche Näherungswerte und können je nach Produkt abweichen.</small>
+      <small>624 eigenentwickelte Grundrezepte ohne übernommene Fremdtexte oder Fremdbilder. Nährwerte sind alltagstaugliche Näherungswerte und können je nach Produkt abweichen.</small>
     </footer>
 
     <dialog class="saved-dialog" id="saved-dialog">

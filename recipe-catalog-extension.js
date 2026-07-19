@@ -27,9 +27,15 @@
     const allergens = [];
     if (/brot|toast|brötchen|mehl|panier|couscous|bulgur|pasta|spaghetti|nudel|gnocchi|wrap|tortilla|hafer|grieß|semmel/.test(text)) allergens.push("gluten");
     if (/joghurt|skyr|quark|feta|halloumi|mozzarella|frischkäse|milch|butter|parmesan|hüttenkäse|schmand|buttermilch/.test(text)) allergens.push("laktose");
-    if (/walnuss|erdnuss|cashew|mandel|haselnuss|nussmus|marzipan/.test(text)) allergens.push("nüsse");
+    if (/walnuss|cashew|mandel|haselnuss|nussmus|marzipan/.test(text)) allergens.push("nüsse");
     if (/tofu|sojajoghurt|sojasauce|tempeh/.test(text)) allergens.push("soja");
     if (/lachs|fisch|thunfisch|kabeljau|seelachs|garnele|karpfen/.test(text)) allergens.push("fisch");
+    if (/\bei\b|eier|rührei|eiklar/.test(text)) allergens.push("ei");
+    if (/senf/.test(text)) allergens.push("senf");
+    if (/sellerie/.test(text)) allergens.push("sellerie");
+    if (/sesam|tahin|hummus/.test(text)) allergens.push("sesam");
+    if (/erdnuss/.test(text)) allergens.push("erdnüsse");
+    if (/garnele|krebs|scampi/.test(text)) allergens.push("krebstiere");
     return allergens;
   }
 
@@ -74,6 +80,12 @@
   function emojiFor(recipe) {
     if (recipe.course === "starter") return recipe.family.includes("soup") ? "🥣" : "🥗";
     if (recipe.course === "dessert") return recipe.family.includes("pancake") ? "🥞" : recipe.family.includes("baked") || recipe.family.includes("cake") ? "🥧" : "🍮";
+    if (recipe.course === "snack") {
+      if (/shake/.test(recipe.family)) return "🥤";
+      if (/sweet|mug/.test(recipe.family)) return "🍎";
+      if (/skewer/.test(recipe.family)) return "🍢";
+      return "🥙";
+    }
     if (/curry|stew|soup/.test(recipe.family)) return "🍲";
     if (/pasta|noodle/.test(recipe.family)) return "🍝";
     if (/rice|bowl/.test(recipe.family)) return "🍚";
@@ -208,6 +220,50 @@
       `Das Dessert backen, bis die Oberfläche goldbraun ist und die Mitte bei einer Garprobe nicht mehr flüssig wirkt.`,
       `Die Form aus dem Ofen nehmen und das Dessert mindestens fünf Minuten ruhen lassen, damit es sich stabilisiert.`,
       `${recipe.title} warm oder lauwarm portionieren, die kühle Creme getrennt dazugeben und servieren.`
+    ];
+  }
+
+  function snackSteps(recipe) {
+    const [first, second, third] = recipe.ingredients.map((item) => item.name);
+    if (recipe.family.includes("shake")) return [
+      `${first}, ${second}, ${third} und die übrigen Zutaten vollständig abwiegen und einen hohen Mixbecher bereitstellen.`,
+      `Frisches Obst waschen oder schälen, in kleine Stücke schneiden und für eine cremige Konsistenz gut vorkühlen.`,
+      `Zuerst die flüssigen Zutaten, anschließend die festen Bestandteile in den Mixbecher geben, damit nichts am Boden haftet.`,
+      `Alles in kurzen Intervallen fein pürieren und den Mixer zwischendurch ausschalten, um die Konsistenz zu kontrollieren.`,
+      `Den Snack probieren und nur bei Bedarf mit etwas Wasser verdünnen oder mit Zimt beziehungsweise Kakao abrunden.`,
+      `Den fertigen Shake in ein Glas füllen, die zurückbehaltene Garnitur auflegen und unmittelbar frisch servieren.`
+    ];
+    if (recipe.family.includes("oven") || recipe.family.includes("mug")) return [
+      `Backofen oder Mikrowelle passend vorheizen und ${first}, ${second}, ${third} sowie alle weiteren Zutaten genau abwiegen.`,
+      `Feste Zutaten gleichmäßig klein schneiden und feuchte Bestandteile in einer Schüssel oder Tasse sorgfältig verrühren.`,
+      `Die übrigen Zutaten kurz unterheben, bis eine gleichmäßige Masse entsteht, ohne sie unnötig lange zu bearbeiten.`,
+      `Die Mischung flach verteilen und so garen, dass die Oberfläche Farbe bekommt, der Snack innen aber saftig bleibt.`,
+      `An einer dicken Stelle prüfen, ob alles vollständig gegart ist, und die Garzeit bei Bedarf minutenweise verlängern.`,
+      `Den Snack kurz ruhen lassen, abschließend würzen oder garnieren und warm beziehungsweise lauwarm servieren.`
+    ];
+    if (recipe.family.includes("pan")) return [
+      `${first}, ${second}, ${third} und die weiteren Zutaten vorbereiten und in Griffweite neben der Pfanne bereitstellen.`,
+      `Eine kleine beschichtete Pfanne auf mittlere Hitze bringen und nur die im Rezept vorgesehene Fettmenge verwenden.`,
+      `Zuerst die länger garenden Zutaten hineingeben und gleichmäßig verteilen, damit sie zuverlässig Farbe annehmen.`,
+      `Die restlichen Zutaten ergänzen und unter regelmäßigem Wenden garen, ohne den Pfannenboden unnötig zu überfüllen.`,
+      `Die Garstufe kontrollieren und den Snack mit Salz, Pfeffer, Kräutern oder einer kleinen Menge Säure abschmecken.`,
+      `Den Pfannensnack auf einem kleinen Teller anrichten, kurz abkühlen lassen und möglichst frisch genießen.`
+    ];
+    if (recipe.family.includes("skewer") || recipe.family.includes("roll")) return [
+      `${first}, ${second}, ${third} und die übrigen Zutaten gründlich vorbereiten und auf einer sauberen Fläche bereitlegen.`,
+      `Gemüse oder Obst in ähnlich große, gut essbare Stücke schneiden und feuchte Zutaten sorgfältig trocken tupfen.`,
+      `Den cremigen Bestandteil glatt rühren, zurückhaltend würzen und dünn aufstreichen beziehungsweise separat bereitstellen.`,
+      `Die Zutaten abwechselnd auf kurze Spieße stecken oder kompakt aufrollen, damit jede Portion sicher zusammenhält.`,
+      `Alle Stücke auf gleichmäßige Größe und einen festen Sitz prüfen und empfindliche Zutaten erst zuletzt ergänzen.`,
+      `Den Snack auf einer kleinen Platte anrichten, mit Kräutern vollenden und sofort oder gut gekühlt servieren.`
+    ];
+    return [
+      `${first}, ${second}, ${third} und die weiteren Zutaten vollständig abwiegen und gekühlte Bestandteile kalt stellen.`,
+      `Obst oder Gemüse waschen, trocken tupfen und in gleichmäßige, gut essbare Stücke beziehungsweise Scheiben schneiden.`,
+      `Die cremige Basis mit Gewürzen, Kräutern oder Zitrone glatt rühren und die Würzung zunächst zurückhaltend dosieren.`,
+      `Die vorbereiteten Zutaten locker miteinander verbinden oder übersichtlich in einem kleinen Glas beziehungsweise Becher schichten.`,
+      `Den Snack probieren, Süße, Säure und Salz ausbalancieren und knusprige Zutaten erst ganz zum Schluss ergänzen.`,
+      `${recipe.title} kompakt anrichten, bis zum Verzehr kühl stellen und innerhalb kurzer Zeit frisch genießen.`
     ];
   }
 
@@ -370,6 +426,8 @@
       ? starterSteps(recipe)
       : recipe.course === "dessert"
         ? dessertSteps(recipe)
+        : recipe.course === "snack"
+          ? snackSteps(recipe)
         : mainSteps(recipe));
     return recipe;
   }
@@ -634,21 +692,58 @@
     });
   }
 
+  const snackSource = "Eigene Rezeptentwicklung nach Recherche zu alltagstauglichen Snackkategorien bei BZfE, REWE und FIT FOR FUN (Abruf Juli 2026); keine Rezepttexte übernommen";
+  const snackSpecs = [
+    ["Skyr-Apfel-Zimt-Becher", "Kühler Proteinbecher mit knackigem Apfel, Skyr und einem kleinen Hafer-Crunch.", "klassisch", "vegetarian", 5, "snack-sweet-cup", [22, 30, 5], "Skyr|200|g;Apfel|120|g;Haferflocken|20|g;Zimt|1|Prise;Zitrone|0.25|Stk.;Honig|1|TL", "skyr", "fruit", "Apfel erst kurz vor dem Essen schneiden und unterheben, damit er frisch und knackig bleibt."],
+    ["Hüttenkäse-Gurken-Cup", "Herzhafter Mini-Becher mit körnigem Frischkäse, Gurke, Radieschen und Schnittlauch.", "deutsch", "vegetarian", 8, "snack-cup", [23, 12, 8], "Körniger Frischkäse|200|g;Gurke|120|g;Radieschen|80|g;Schnittlauch|8|g;Zitrone|0.25|Stk.;Roggenknäckebrot|25|g", "cottage", "bread", "Das Knäckebrot getrennt mitnehmen und erst beim Essen zerbrechen, damit es knusprig bleibt."],
+    ["Paprika-Hummus-Boote", "Knackige Paprikastücke mit einer milden Hummusfüllung und frischen Kräutern.", "orientalisch", "vegan", 10, "snack-cup", [10, 29, 11], "Rote Paprika|180|g;Hummus|100|g;Gurke|80|g;Petersilie|8|g;Zitrone|0.25|Stk.;Vollkornknäckebrot|25|g", "tofu", "bread", "Die Paprika breit schneiden und trocken tupfen, damit die Hummusfüllung sicher darauf hält."],
+    ["Chili-Edamame mit Limette", "Warme Edamame mit Limette, milder Chiliwürze und geröstetem Sesam.", "asiatisch", "vegan", 10, "snack-pan", [19, 18, 10], "Edamame ohne Schale|180|g;Limette|0.5|Stk.;Sesam|10|g;Chiliflocken|1|Prise;Sojasauce|1|TL;Frühlingszwiebel|25|g", "tofu", "rice", "Edamame nur kurz erhitzen und Limettensaft erst nach dem Garen darübergeben."],
+    ["Bananen-Erdnuss-Kakao-Happen", "Schnelle Bananenscheiben mit Erdnussmus, Kakao und einem Hauch Zimt.", "klassisch", "vegan", 7, "snack-sweet-bites", [8, 35, 12], "Banane|140|g;Erdnussmus|25|g;Backkakao|1|TL;Zimt|1|Prise;Haferflocken|15|g;Zitrone|0.25|Stk.", "tofu", "oats", "Die Happen kurz kühlen, damit das Erdnussmus fester wird und nichts verrutscht."],
+    ["Spinat-Rührei-Tasse", "Warmes Rührei mit Blattspinat, Tomate und Schnittlauch für den kleinen Hunger.", "deutsch", "vegetarian", 10, "snack-pan", [23, 10, 14], "Eier|2|Stk.;Blattspinat|80|g;Kirschtomaten|100|g;Körniger Frischkäse|70|g;Schnittlauch|8|g;Rapsöl|1|TL", "egg", "bread", "Das Ei bei milder Hitze nur knapp stocken lassen und den Frischkäse zum Schluss unterheben."],
+    ["Thunfisch-Gurken-Taler", "Saftige Gurkenscheiben mit leichter Thunfischcreme und Dill.", "klassisch", "omnivore", 10, "snack-cup", [26, 9, 7], "Thunfisch im eigenen Saft|130|g;Gurke|180|g;Skyr|80|g;Dill|6|g;Zitrone|0.25|Stk.;Vollkornknäckebrot|20|g", "fish", "bread", "Die Gurkenscheiben trocken tupfen und die Creme erst unmittelbar vor dem Servieren aufsetzen."],
+    ["Radieschen-Kräuterquark auf Knäckebrot", "Bodenständiger Quarksnack mit Radieschen, Gurke und knusprigem Roggenknäckebrot.", "deutsch", "vegetarian", 8, "snack-cup", [24, 31, 5], "Magerquark|200|g;Roggenknäckebrot|45|g;Radieschen|90|g;Gurke|80|g;Schnittlauch|8|g;Milch|25|ml", "skyr", "bread", "Den Quark separat transportieren und das Knäckebrot erst direkt vor dem Essen bestreichen."],
+    ["Kichererbsen-Tomaten-Cup", "Mediterraner Bechersalat mit Kichererbsen, Tomate, Gurke und Petersilie.", "mediterran", "vegan", 10, "snack-cup", [11, 31, 9], "Gekochte Kichererbsen|150|g;Kirschtomaten|120|g;Gurke|100|g;Petersilie|8|g;Zitrone|0.5|Stk.;Olivenöl|1|TL", "lentils", "bread", "Tomaten und Gurke erst kurz vor dem Essen salzen, damit der Bechersalat nicht wässrig wird."],
+    ["Beeren-Joghurt-Hafer-Glas", "Fruchtiges Joghurtglas mit Beeren, Haferflocken und Sonnenblumenkernen.", "klassisch", "vegetarian", 5, "snack-sweet-cup", [19, 35, 9], "Griechischer Joghurt|180|g;Beeren|140|g;Haferflocken|25|g;Sonnenblumenkerne|12|g;Zitrone|0.25|Stk.;Honig|1|TL", "skyr", "oats", "Haferflocken und Kerne obenauf geben und erst beim Essen unterrühren, damit sie Biss behalten."],
+    ["Paprika-Knusper-Kichererbsen", "Ofengeröstete Kichererbsen mit Paprika, Knoblauch und frischer Petersilie.", "orientalisch", "vegan", 20, "snack-oven", [13, 38, 8], "Gekochte Kichererbsen|200|g;Rapsöl|1|TL;Paprikapulver|1|TL;Knoblauch|0.5|Stk.;Petersilie|8|g;Zitrone|0.25|Stk.", "lentils", "bread", "Die Kichererbsen vor dem Rösten sehr trocken tupfen und mit Abstand auf dem Blech verteilen."],
+    ["Hüttenkäse-Tomaten-Bowl", "Kleine Schale aus körnigem Frischkäse, Tomaten, Paprika und Basilikum.", "mediterran", "vegetarian", 6, "snack-cup", [25, 16, 9], "Körniger Frischkäse|200|g;Kirschtomaten|140|g;Paprika|100|g;Basilikum|8|g;Balsamico|1|TL;Vollkornknäckebrot|20|g", "cottage", "bread", "Balsamico sparsam dosieren und erst ganz am Ende über die Schale träufeln."],
+    ["Apfel-Quark-Creme mit Sonnenblumenkernen", "Cremiger Quarksnack mit Apfel, Zimt und gerösteten Sonnenblumenkernen.", "deutsch", "vegetarian", 7, "snack-sweet-cup", [25, 32, 7], "Magerquark|220|g;Apfel|130|g;Sonnenblumenkerne|15|g;Milch|30|ml;Zimt|1|Prise;Zitrone|0.25|Stk.", "skyr", "fruit", "Die Kerne trocken anrösten, vollständig abkühlen lassen und erst zum Schluss aufstreuen."],
+    ["Räucherlachs-Gurken-Röllchen", "Kleine Gurkenröllchen mit Räucherlachs, Frischkäse und Dill.", "klassisch", "omnivore", 10, "snack-roll", [23, 8, 13], "Räucherlachs|100|g;Gurke|180|g;Frischkäse leicht|70|g;Dill|6|g;Zitrone|0.25|Stk.;Roggenknäckebrot|20|g", "fish", "bread", "Gurkenstreifen trocken tupfen und straff, aber ohne Druck um die Füllung rollen."],
+    ["Tofu-Gemüse-Spieße aus der Pfanne", "Schnelle Mini-Spieße mit Tofu, Paprika, Zucchini und milder Sojawürze.", "asiatisch", "vegan", 15, "snack-skewer-pan", [22, 18, 13], "Naturtofu|180|g;Paprika|120|g;Zucchini|120|g;Sojasauce|1|EL;Sesam|8|g;Rapsöl|1|TL", "tofu", "rice", "Tofu und Gemüse separat bräunen und erst danach auf kurze Spieße stecken."],
+    ["Mikrowellen-Beeren-Porridge", "Kleines warmes Porridge mit Beeren, Haferflocken und cremigem Skyr.", "klassisch", "vegetarian", 8, "snack-mug", [20, 42, 7], "Haferflocken|45|g;Milch|140|ml;Beeren|120|g;Skyr|130|g;Zimt|1|Prise;Sonnenblumenkerne|10|g", "skyr", "oats", "Die Tasse höchstens zu zwei Dritteln füllen und beim Erhitzen einmal gründlich umrühren."],
+    ["Tomate-Mozzarella-Spieße", "Kleine Spieße mit Kirschtomaten, Mozzarella, Gurke und Basilikum.", "mediterran", "vegetarian", 10, "snack-skewer", [20, 13, 16], "Mozzarella leicht|150|g;Kirschtomaten|160|g;Gurke|100|g;Basilikum|8|g;Balsamico|1|TL;Vollkornbrot|35|g", "cottage", "bread", "Balsamico erst nach dem Aufspießen sparsam darübergeben, damit die Zutaten nicht abrutschen."],
+    ["Puten-Gurken-Röllchen", "Herzhafte Röllchen aus Putenbrustaufschnitt, Gurke, Frischkäse und Paprika.", "deutsch", "omnivore", 8, "snack-roll", [26, 12, 8], "Putenbrustaufschnitt|120|g;Gurke|140|g;Frischkäse leicht|70|g;Paprika|100|g;Schnittlauch|8|g;Vollkornknäckebrot|20|g", "turkey", "bread", "Die Röllchen mit Schnittlauch fixieren und bis zum Servieren zugedeckt kühl stellen."],
+    ["Kakao-Bananen-Skyr-Shake", "Sämiger Shake aus Banane, Skyr, Kakao und Haferflocken.", "klassisch", "vegetarian", 5, "snack-shake", [27, 44, 5], "Skyr|220|g;Banane|120|g;Milch|140|ml;Haferflocken|20|g;Backkakao|1|TL;Zimt|1|Prise", "skyr", "fruit", "Eine sehr reife Banane liefert genug Süße, sodass kein zusätzlicher Zucker nötig ist."],
+    ["Linsen-Möhren-Salat im Glas", "Kleiner Linsensalat mit Möhre, Paprika und einem frischen Zitronendressing.", "deutsch", "vegan", 12, "snack-cup", [14, 38, 8], "Gekochte Linsen|180|g;Möhre|100|g;Rote Paprika|100|g;Petersilie|8|g;Zitrone|0.5|Stk.;Olivenöl|1|TL", "lentils", "bread", "Das Dressing unten ins Glas geben und den Salat erst kurz vor dem Essen durchschütteln."],
+    ["Beeren-Protein-Tassenküchlein", "Schnelles kleines Küchlein mit Quark, Ei, Hafer und Beeren.", "klassisch", "vegetarian", 10, "snack-mug", [24, 30, 9], "Magerquark|160|g;Ei|1|Stk.;Haferflocken|35|g;Beeren|100|g;Backpulver|0.5|TL;Vanille|1|Prise", "dessert", "oats", "Eine ausreichend große Tasse verwenden und die Masse nur so lange garen, bis die Mitte fest ist."],
+    ["Maiswaffeln mit Avocado-Hüttenkäse", "Knusprige Maiswaffeln mit Avocado, körnigem Frischkäse und Tomate.", "mediterran", "vegetarian", 8, "snack-cup", [20, 31, 14], "Maiswaffeln|40|g;Avocado|70|g;Körniger Frischkäse|160|g;Kirschtomaten|100|g;Zitrone|0.25|Stk.;Schnittlauch|8|g", "cottage", "bread", "Den Belag getrennt aufbewahren und die Maiswaffeln erst unmittelbar vor dem Essen bestreichen."],
+    ["Süßkartoffel-Sticks mit Joghurtdip", "Kleine Ofenportion aus Süßkartoffelsticks mit würzigem Kräuterjoghurt.", "klassisch", "vegetarian", 20, "snack-oven", [15, 43, 8], "Süßkartoffel|240|g;Griechischer Joghurt|140|g;Rapsöl|1|TL;Paprikapulver|1|TL;Petersilie|8|g;Zitrone|0.25|Stk.", "skyr", "potato", "Die Sticks dünn und gleichmäßig schneiden und mit Abstand auf einem heißen Blech backen."],
+    ["Sächsischer Leinölquark-Radieschen-Cup", "Kleiner Kräuterquark mit Leinöl, Radieschen, Gurke und Roggenknäckebrot.", "saechsisch", "vegetarian", 8, "snack-cup", [25, 28, 10], "Magerquark|220|g;Radieschen|100|g;Gurke|100|g;Leinöl|1|TL;Schnittlauch|8|g;Roggenknäckebrot|35|g", "skyr", "bread", "Leinöl nicht erhitzen, sondern erst kurz vor dem Essen auf den Quark träufeln."]
+  ];
+
+  function buildSnackRecipes() {
+    return snackSpecs.map((spec) => {
+      const [title, description, cuisine, diet, time, family, macros, ingredients, proteinBoost, energyBoost, tip] = spec;
+      return { title, description, course: "snack", cuisine, diet, time, family, macros, ingredients, proteinBoost, energyBoost, tip, researchBasis: snackSource };
+    });
+  }
+
   const generalSpecs = [
     ...buildGeneralStarters(),
     ...buildGeneralMains(),
     ...buildGeneralDesserts()
   ];
   const saxonRecipeSpecs = buildSaxonRecipes();
+  const snackRecipeSpecs = buildSnackRecipes();
   const extensionRecipes = [
     ...generalSpecs.map((spec, index) => makeRecipe(spec, index)),
-    ...saxonRecipeSpecs.map((spec, index) => makeRecipe(spec, index, "sachsen"))
+    ...saxonRecipeSpecs.map((spec, index) => makeRecipe(spec, index, "sachsen")),
+    ...snackRecipeSpecs.map((spec, index) => makeRecipe(spec, index, "snack"))
   ];
   const baseRecipes = baseCatalog.buildRecipes();
   const allRecipes = [...baseRecipes, ...extensionRecipes];
 
-  if (generalSpecs.length !== 470 || saxonRecipeSpecs.length !== 30 || allRecipes.length !== 600) {
-    throw new Error(`Unerwartete Kataloggröße: ${baseRecipes.length} + ${generalSpecs.length} + ${saxonRecipeSpecs.length}`);
+  if (generalSpecs.length !== 470 || saxonRecipeSpecs.length !== 30 || snackRecipeSpecs.length !== 24 || allRecipes.length !== 624) {
+    throw new Error(`Unerwartete Kataloggröße: ${baseRecipes.length} + ${generalSpecs.length} + ${saxonRecipeSpecs.length} + ${snackRecipeSpecs.length}`);
   }
 
   global.KuechenenergieRecipeCatalog = {
@@ -659,8 +754,9 @@
     })),
     stats: {
       baseRecipes: allRecipes.length,
-      adaptiveVariants: 24000,
-      saxonRecipes: saxonRecipeSpecs.length
+      adaptiveVariants: 24960,
+      saxonRecipes: saxonRecipeSpecs.length + snackRecipeSpecs.filter((recipe) => recipe.cuisine === "saechsisch").length,
+      snackRecipes: snackRecipeSpecs.length
     }
   };
 }(typeof window !== "undefined" ? window : globalThis));

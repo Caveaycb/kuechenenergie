@@ -49,13 +49,13 @@ function mostSimilar(getValues) {
   return result;
 }
 
-assert.strictEqual(raw.length, 600, "Der erweiterte Katalog muss exakt 600 Grundrezepte enthalten.");
-assert.strictEqual(recipes.length, 600, "Alle 600 Grundrezepte müssen die automatische Qualitätsprüfung bestehen.");
-assert.deepStrictEqual(groupedCount("course"), { starter: 105, main: 395, dessert: 100 });
-assert.strictEqual(new Set(recipes.map((recipe) => recipe.id)).size, 600, "Rezept-IDs müssen eindeutig sein.");
-assert.strictEqual(new Set(recipes.map((recipe) => recipe.title.toLocaleLowerCase("de-DE"))).size, 600, "Titel müssen eindeutig sein.");
+assert.strictEqual(raw.length, 624, "Der erweiterte Katalog muss exakt 624 Grundrezepte enthalten.");
+assert.strictEqual(recipes.length, 624, "Alle 624 Grundrezepte müssen die automatische Qualitätsprüfung bestehen.");
+assert.deepStrictEqual(groupedCount("course"), { starter: 105, main: 395, dessert: 100, snack: 24 });
+assert.strictEqual(new Set(recipes.map((recipe) => recipe.id)).size, 624, "Rezept-IDs müssen eindeutig sein.");
+assert.strictEqual(new Set(recipes.map((recipe) => recipe.title.toLocaleLowerCase("de-DE"))).size, 624, "Titel müssen eindeutig sein.");
 assert.ok(new Set(recipes.map((recipe) => recipe.family)).size >= 70, "Der Katalog benötigt mindestens 70 Zubereitungsfamilien.");
-assert.strictEqual(recipes.filter((recipe) => recipe.cuisine === "saechsisch").length, 30, "Die sächsische Kategorie muss 30 eigene Grundrezepte enthalten.");
+assert.strictEqual(recipes.filter((recipe) => recipe.cuisine === "saechsisch").length, 31, "Die sächsische Kategorie muss inklusive Snack 31 eigene Grundrezepte enthalten.");
 
 recipes.forEach((recipe) => {
   assert.strictEqual(recipe.quality.passed, true, `${recipe.title}: Qualitätsprüfung fehlgeschlagen.`);
@@ -91,6 +91,11 @@ saxonRecipes.forEach((recipe) => {
   assert.ok(recipe.provenance.researchBasis, `${recipe.title}: regionale Recherchegrundlage fehlt.`);
 });
 assert.ok(!recipes.some((recipe) => recipe.title === "Leipziger Lerche"), "Geschützte Produktbezeichnung darf nicht als eigenes Originalrezept ausgegeben werden.");
+
+const snackRecipes = recipes.filter((recipe) => recipe.course === "snack");
+assert.strictEqual(snackRecipes.length, 24, "Die Snack-Kategorie muss 24 eigene Grundrezepte enthalten.");
+assert.ok(snackRecipes.every((recipe) => recipe.time <= 20), "Snacks müssen innerhalb von höchstens 20 Minuten zubereitet sein.");
+assert.ok(snackRecipes.every((recipe) => recipe.provenance.researchBasis), "Für Snacks muss die Recherchegrundlage dokumentiert sein.");
 
 const defaultTargets = {
   caloriesMin: 550,

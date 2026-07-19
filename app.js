@@ -41,6 +41,14 @@ const boosters = {
     instruction: "Den zusätzlichen Tofu trocken tupfen, würfeln, würzen und in einer beschichteten Pfanne rundum goldbraun braten.",
     macros: { kcal: 152, protein: 15, carbs: 5, fat: 8 }
   },
+  veganNoSoy: {
+    name: "Gekochte Linsen",
+    note: "als Protein-Extra",
+    unit: "g",
+    maxAmount: 300,
+    instruction: "Die zusätzlichen Linsen abspülen, gut abtropfen lassen und passend gewürzt unter das Gericht heben.",
+    macros: { kcal: 116, protein: 9, carbs: 20, fat: 0.5 }
+  },
   dessertVegetarian: {
     name: "Vanille-Skyr",
     note: "als Protein-Extra",
@@ -99,11 +107,35 @@ const searchResults = document.querySelector("#search-results");
 const searchStatus = document.querySelector("#search-status");
 const savedDialog = document.querySelector("#saved-dialog");
 const toast = document.querySelector("#toast");
+const allergenToggle = document.querySelector("#allergen-toggle");
+const allergenPanel = document.querySelector("#allergen-panel");
+const allergenList = document.querySelector("#allergen-list");
+const plannerResult = document.querySelector("#planner-result");
+const plannerAnnouncement = document.querySelector("#planner-announcement");
+const generatePlanButton = document.querySelector("#generate-plan");
 
 let currentMeal = null;
 let servings = 1;
 let recentRecipeIds = [];
 let toastTimer;
+let previousCourse = form.elements.course.value;
+let plannerMode = "day";
+let plannerPlans = { day: null, week: null };
+const plannerMealCache = new Map();
+
+const allergenLabels = {
+  gluten: "Glutenhaltiges Getreide",
+  laktose: "Milch / Laktose",
+  "nüsse": "Schalenfrüchte",
+  soja: "Soja",
+  fisch: "Fisch",
+  ei: "Ei",
+  senf: "Senf",
+  sellerie: "Sellerie",
+  sesam: "Sesam",
+  "erdnüsse": "Erdnüsse",
+  krebstiere: "Krebstiere"
+};
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -291,19 +323,31 @@ function renderSearchResults() {
 }
 
 function getBooster(recipe, config) {
-  if (recipe.variantPolicy?.proteinBooster) return recipe.variantPolicy.proteinBooster;
+  const configured = recipe.variantPolicy?.proteinBooster;
+  const configuredHasDairy = configured && /skyr|quark|frischkäse|joghurt/i.test(configured.name);
+  const configuredHasSoy = configured && /tofu|soja|tempeh/i.test(configured.name);
+  if (configured
+    && !(config.exclude.includes("laktose") && configuredHasDairy)
+    && !(config.exclude.includes("soja") && configuredHasSoy)) return configured;
   if (recipe.course === "dessert") {
+    if (config.exclude.includes("laktose")) return config.exclude.includes("soja") ? boosters.veganNoSoy : boosters.dessertVegan;
     return recipe.diet === "vegan" ? boosters.dessertVegan : boosters.dessertVegetarian;
   }
-  if (recipe.diet === "vegan") return boosters.vegan;
+  if (recipe.diet === "vegan") return config.exclude.includes("soja") ? boosters.veganNoSoy : boosters.vegan;
   if (recipe.diet === "vegetarian") {
-    return config.exclude.includes("laktose") ? boosters.vegan : boosters.vegetarian;
+    if (config.exclude.includes("laktose")) return config.exclude.includes("soja") ? boosters.veganNoSoy : boosters.vegan;
+    return boosters.vegetarian;
   }
   return boosters.omnivore;
 }
 
-function getEnergyBooster(recipe) {
-  if (recipe.variantPolicy?.energyBooster) return recipe.variantPolicy.energyBooster;
+function getEnergyBooster(recipe, config) {
+  const configured = recipe.variantPolicy?.energyBooster;
+  const containsGluten = configured && /brot|pasta|couscous|hafer/i.test(configured.name);
+  if (configured && !(config.exclude.includes("gluten") && containsGluten)) return configured;
+  if (config.exclude.includes("gluten")) {
+    return recipe.course === "dessert" ? energyBoosters.dessert : energyBoosters.savory;
+  }
   return recipe.course === "dessert" ? energyBoosters.dessert : energyBoosters.savory;
 }
 
@@ -312,7 +356,7 @@ function adaptRecipe(recipe, config) {
     recipe,
     config,
     getBooster(recipe, config),
-    getEnergyBooster(recipe)
+    getEnergyBooster(recipe, config)
   );
 }
 
@@ -369,6 +413,7 @@ function dietLabel(diet) {
 function courseLabel(course) {
   if (course === "starter") return "Vorspeise";
   if (course === "dessert") return "Dessert";
+  if (course === "snack") return "Snack";
   return "Hauptspeise";
 }
 
@@ -376,6 +421,47 @@ function cuisineLabel(cuisine) {
   if (cuisine === "saechsisch") return "Typisch sächsisch";
   if (cuisine === "klassisch") return "Modern & klassisch";
   return cuisine.charAt(0).toLocaleUpperCase("de-DE") + cuisine.slice(1);
+}
+
+function allergensForMeal(meal) {
+  const allergens = new Set(meal.recipe.allergens || []);
+  const text = (meal.ingredients || []).map((ingredient) => ingredient.name).join(" ").toLocaleLowerCase("de-DE");
+  const rules = [
+    ["gluten", /brot|toast|brötchen|mehl|panier|couscous|bulgur|pasta|nudel|gnocchi|wrap|tortilla|hafer|grieß|semmel/],
+    ["laktose", /joghurt|skyr|quark|feta|halloumi|mozzarella|frischkäse|milch|butter|parmesan|hüttenkäse|schmand|buttermilch/],
+    ["nüsse", /walnuss|cashew|mandel|haselnuss|nussmus|marzipan/],
+    ["soja", /tofu|sojajoghurt|sojasauce|tempeh/],
+    ["fisch", /lachs|fisch|thunfisch|kabeljau|seelachs|karpfen/],
+    ["ei", /\bei\b|eier|rührei|eiklar/],
+    ["senf", /senf/],
+    ["sellerie", /sellerie/],
+    ["sesam", /sesam|tahin|hummus/],
+    ["erdnüsse", /erdnuss/],
+    ["krebstiere", /garnele|krebs|scampi/]
+  ];
+  rules.forEach(([key, pattern]) => { if (pattern.test(text)) allergens.add(key); });
+  return [...allergens].filter(Boolean).sort((first, second) => (
+    (allergenLabels[first] || first).localeCompare(allergenLabels[second] || second, "de")
+  ));
+}
+
+function allergenText(meal) {
+  const allergens = allergensForMeal(meal);
+  return allergens.length
+    ? allergens.map((allergen) => allergenLabels[allergen] || allergen).join(", ")
+    : "Keine der automatisch erfassten Hauptallergene erkannt";
+}
+
+function renderAllergens(meal) {
+  const allergens = allergensForMeal(meal);
+  allergenToggle.setAttribute("aria-expanded", "false");
+  allergenPanel.hidden = true;
+  document.querySelector("#allergen-count").textContent = allergens.length
+    ? `${allergens.length} ${allergens.length === 1 ? "Hinweis" : "Hinweise"} – zum Öffnen tippen`
+    : "Keine Hauptallergene erkannt – Details öffnen";
+  allergenList.innerHTML = allergens.length
+    ? allergens.map((allergen) => `<li>${allergenLabels[allergen] || allergen}</li>`).join("")
+    : "<li>Keine automatisch erfassten Hauptallergene</li>";
 }
 
 function renderIngredients() {
@@ -474,6 +560,7 @@ function renderMeal(meal) {
     ? `Anpassung dieses Grundrezepts: ${adaptationParts.join(" · ")}.`
     : "Dieses Grundrezept passt bereits ohne zusätzliche Makro-Extras in deine Zielspanne.";
   adaptationNote.classList.toggle("is-direct", !adaptationParts.length);
+  renderAllergens(meal);
   document.querySelector("#method-list").innerHTML = meal.steps.map((step) => `<li>${step}</li>`).join("");
   const adjustments = [];
   if (meal.boosterAmount) adjustments.push(`${meal.booster.name} gleicht das Proteinziel aus`);
@@ -530,6 +617,205 @@ function generateMeal(preferredId, shouldScroll = false) {
       resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     }
   }, 260);
+}
+
+function plannerCourseConfig(baseConfig, course, share) {
+  const dayCaloriesMin = Math.max(1500, baseConfig.caloriesMin * 3);
+  const dayCaloriesMax = Math.max(dayCaloriesMin + 300, baseConfig.caloriesMax * 3);
+  const dayProteinMin = Math.max(75, baseConfig.proteinMin * 3);
+  const dayProteinMax = Math.max(dayProteinMin + 25, baseConfig.proteinMax * 3);
+  const caloriesMin = Math.max(100, Math.round((dayCaloriesMin * share) / 25) * 25);
+  const caloriesMax = Math.max(caloriesMin + 50, Math.round((dayCaloriesMax * share) / 25) * 25);
+  const proteinMin = Math.max(5, Math.round((dayProteinMin * share) / 5) * 5);
+  const proteinMax = Math.max(proteinMin + 5, Math.round((dayProteinMax * share) / 5) * 5);
+  return {
+    ...baseConfig,
+    caloriesMin,
+    caloriesMax,
+    proteinMin,
+    proteinMax,
+    calories: Math.round((caloriesMin + caloriesMax) / 2),
+    protein: Math.round((proteinMin + proteinMax) / 2),
+    course,
+    search: ""
+  };
+}
+
+function rankPlannerCourse(baseConfig, course, share) {
+  let config = plannerCourseConfig(baseConfig, course, share);
+  let candidates = eligibleRecipes(config);
+  let relaxedCuisine = false;
+  let relaxedTime = false;
+
+  if (!candidates.length && config.cuisine !== "all") {
+    config = { ...config, cuisine: "all" };
+    candidates = eligibleRecipes(config);
+    relaxedCuisine = true;
+  }
+  if (!candidates.length && config.maxTime < 60) {
+    config = { ...config, maxTime: 60 };
+    candidates = eligibleRecipes(config);
+    relaxedTime = true;
+  }
+
+  const meals = candidates.map((recipe) => {
+    const meal = adaptRecipe(recipe, config);
+    return {
+      meal,
+      score: (meal.withinTargets ? 1000 : 0) + meal.match - meal.adjustmentScore + Math.random() * 5
+    };
+  }).sort((first, second) => second.score - first.score).map((item) => item.meal);
+
+  return { meals, relaxedCuisine, relaxedTime };
+}
+
+function selectPlannerMeal(ranking, usedRecipeIds) {
+  const fresh = ranking.meals.filter((meal) => !usedRecipeIds.has(meal.recipe.id));
+  const source = fresh.length ? fresh : ranking.meals;
+  if (!source.length) return null;
+  const pool = source.slice(0, Math.min(12, source.length));
+  const selected = pool[Math.floor(Math.random() * pool.length)];
+  usedRecipeIds.add(selected.recipe.id);
+  return selected;
+}
+
+function summarizeMenu(meals, config) {
+  return meals.reduce((summary, meal) => {
+    const energy = window.KuechenenergieEnergy?.estimate(meal.recipe, config, 1);
+    summary.kcal += meal.macros.kcal;
+    summary.protein += meal.macros.protein;
+    summary.carbs += meal.macros.carbs;
+    summary.fat += meal.macros.fat;
+    summary.time += meal.recipe.time;
+    summary.kwh += energy?.primary.kwh || 0;
+    summary.cost += energy?.primary.cost || 0;
+    return summary;
+  }, { kcal: 0, protein: 0, carbs: 0, fat: 0, time: 0, kwh: 0, cost: 0 });
+}
+
+function createPlannerPlan(dayCount) {
+  const baseConfig = { ...getConfig(), course: "all", search: "" };
+  const rankings = {
+    starter: rankPlannerCourse(baseConfig, "starter", 0.2),
+    main: rankPlannerCourse(baseConfig, "main", 0.6),
+    dessert: rankPlannerCourse(baseConfig, "dessert", 0.2)
+  };
+  if (Object.values(rankings).some((ranking) => !ranking.meals.length)) return null;
+
+  const usedRecipeIds = new Set();
+  const days = Array.from({ length: dayCount }, (_, dayIndex) => {
+    const meals = [
+      selectPlannerMeal(rankings.starter, usedRecipeIds),
+      selectPlannerMeal(rankings.main, usedRecipeIds),
+      selectPlannerMeal(rankings.dessert, usedRecipeIds)
+    ];
+    return { dayIndex, meals, summary: summarizeMenu(meals, baseConfig) };
+  });
+
+  return {
+    days,
+    config: baseConfig,
+    relaxedCuisine: Object.values(rankings).some((ranking) => ranking.relaxedCuisine),
+    relaxedTime: Object.values(rankings).some((ranking) => ranking.relaxedTime)
+  };
+}
+
+function plannerSummaryMarkup(summary, prefix = "") {
+  return `
+    <div class="plan-summary" aria-label="${prefix || "Menü"} Nährwerte und Kochenergie">
+      <span class="plan-summary-label"><strong>${prefix || "Menü"}</strong></span>
+      <span><strong>${Math.round(summary.kcal)}</strong> kcal</span>
+      <span><strong>${Math.round(summary.protein)}</strong> g Protein</span>
+      <span><strong>${Math.round(summary.carbs)}</strong> g Carbs</span>
+      <span><strong>${Math.round(summary.fat)}</strong> g Fette</span>
+      <span><strong>${Math.round(summary.time)}</strong> Min. Zubereitung</span>
+      <span><strong>${formatEnergyNumber(summary.kwh)}</strong> kWh · ${formatEnergyNumber(summary.cost)} €</span>
+    </div>`;
+}
+
+function planRecipeMarkup(meal, cacheKey) {
+  const panelId = `plan-allergens-${cacheKey}`;
+  const icon = meal.recipe.course === "starter" ? "🥗" : meal.recipe.course === "dessert" ? "🍮" : "🍽️";
+  plannerMealCache.set(cacheKey, meal);
+  return `
+    <article class="plan-recipe-card">
+      <div class="plan-course"><span aria-hidden="true">${icon}</span>${courseLabel(meal.recipe.course)}</div>
+      <h3>${meal.recipe.title}</h3>
+      <p>${meal.recipe.description}</p>
+      <div class="plan-macros" aria-label="Nährwerte"><span>${Math.round(meal.macros.kcal)} kcal</span><span>${Math.round(meal.macros.protein)} g Protein</span><span>${meal.recipe.time} Min.</span></div>
+      <div class="plan-card-actions">
+        <button type="button" data-open-plan-recipe="${cacheKey}">Rezept öffnen</button>
+        <button type="button" data-plan-allergens="${panelId}" aria-expanded="false" aria-controls="${panelId}">Allergene</button>
+      </div>
+      <div class="plan-allergen-panel" id="${panelId}" hidden><strong>Enthalten:</strong> ${allergenText(meal)}. Packungsangaben zusätzlich prüfen.</div>
+    </article>`;
+}
+
+function plannerRelaxationMarkup(plan) {
+  if (!plan.relaxedCuisine && !plan.relaxedTime) return "";
+  const details = [
+    plan.relaxedCuisine ? "der Küchenstil" : "",
+    plan.relaxedTime ? "die maximale Zeit" : ""
+  ].filter(Boolean).join(" und ");
+  return `<p class="adaptation-note">Für ein vollständiges Menü wurde ${details} bei einzelnen Gängen behutsam erweitert. Ernährungsweise und Allergenausschlüsse bleiben unverändert.</p>`;
+}
+
+function renderPlannerPlan() {
+  const plan = plannerPlans[plannerMode];
+  plannerMealCache.clear();
+  if (!plan) {
+    plannerResult.innerHTML = `<div class="planner-empty"><span aria-hidden="true">${plannerMode === "week" ? "7" : "1"}</span><div><strong>Noch kein Plan auf dem Tisch.</strong><p>${plannerMode === "week" ? "Erstelle sieben abwechslungsreiche Drei-Gänge-Menüs für deine Woche." : "Erstelle ein passendes Menü aus Vorspeise, Hauptspeise und Dessert."}</p></div></div>`;
+    return;
+  }
+
+  if (plannerMode === "day") {
+    const day = plan.days[0];
+    plannerResult.innerHTML = `${plannerSummaryMarkup(day.summary, "Tagesplan")}${plannerRelaxationMarkup(plan)}<div class="plan-day-grid">${day.meals.map((meal, index) => planRecipeMarkup(meal, `day-0-${index}`)).join("")}</div>`;
+    return;
+  }
+
+  const weekdays = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+  const total = plan.days.reduce((summary, day) => {
+    Object.keys(summary).forEach((key) => { summary[key] += day.summary[key]; });
+    return summary;
+  }, { kcal: 0, protein: 0, carbs: 0, fat: 0, time: 0, kwh: 0, cost: 0 });
+  const dailyAverage = Object.fromEntries(Object.entries(total).map(([key, value]) => [key, value / 7]));
+  plannerResult.innerHTML = `${plannerSummaryMarkup(dailyAverage, "Durchschnitt pro Tag")}${plannerRelaxationMarkup(plan)}<div class="week-plan">${plan.days.map((day, dayIndex) => `
+    <details class="week-day" ${dayIndex === 0 ? "open" : ""}>
+      <summary><span class="week-number">${dayIndex + 1}</span><span><strong>${weekdays[dayIndex]}</strong><small>${Math.round(day.summary.kcal)} kcal · ${Math.round(day.summary.protein)} g Protein · ${formatEnergyNumber(day.summary.kwh)} kWh</small></span><span aria-hidden="true">+</span></summary>
+      <div class="week-course-list">${day.meals.map((meal, mealIndex) => planRecipeMarkup(meal, `week-${dayIndex}-${mealIndex}`)).join("")}</div>
+    </details>`).join("")}</div>`;
+}
+
+function setPlannerMode(mode) {
+  plannerMode = mode;
+  document.querySelectorAll("[data-planner-mode]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.plannerMode === mode));
+  });
+  const isWeek = mode === "week";
+  document.querySelector("#planner-mode-title").textContent = isWeek ? "Sieben Tage, sieben Menüs" : "Dein Drei-Gänge-Tag";
+  document.querySelector("#planner-mode-copy").textContent = isWeek
+    ? "Jeder Tag kombiniert Vorspeise, Hauptspeise und Dessert; Wiederholungen werden möglichst vermieden."
+    : "Deine Zielspanne dient als Mahlzeitbasis; daraus entsteht ein realistischer Tagesrahmen im Verhältnis 20 / 60 / 20.";
+  document.querySelector("#generate-plan-label").textContent = isWeek ? "Wochenplan erstellen" : "Tagesplan erstellen";
+  renderPlannerPlan();
+}
+
+function generatePlannerPlan() {
+  generatePlanButton.disabled = true;
+  plannerResult.setAttribute("aria-busy", "true");
+  document.querySelector("#generate-plan-label").textContent = "Menüs werden kombiniert …";
+  window.setTimeout(() => {
+    const plan = createPlannerPlan(plannerMode === "week" ? 7 : 1);
+    plannerPlans[plannerMode] = plan;
+    renderPlannerPlan();
+    plannerResult.setAttribute("aria-busy", "false");
+    generatePlanButton.disabled = false;
+    document.querySelector("#generate-plan-label").textContent = plannerMode === "week" ? "Wochenplan neu mischen" : "Tagesplan neu mischen";
+    plannerAnnouncement.textContent = plan
+      ? `${plannerMode === "week" ? "Wochenplan mit sieben Menüs" : "Tagesplan mit drei Gängen"} wurde erstellt.`
+      : "Mit den aktuellen Ausschlüssen konnte kein vollständiger Menüplan erstellt werden.";
+  }, 80);
 }
 
 function savedKey(meal = currentMeal) {
@@ -627,6 +913,7 @@ function applyConfig(config) {
   proteinMaxInput.value = config.proteinMax ?? clamp(legacyProtein + 10, Number(proteinMaxInput.min) + 5, Number(proteinMaxInput.max));
   const course = config.course || "all";
   form.querySelector(`input[name="course"][value="${course}"]`).checked = true;
+  previousCourse = course;
   form.querySelector(`input[name="diet"][value="${config.diet || "all"}"]`).checked = true;
   form.elements.cuisine.value = config.cuisine || "all";
   form.elements.maxTime.value = String(config.maxTime || 60);
@@ -745,6 +1032,27 @@ form.addEventListener("change", (event) => {
     renderEnergy();
     return;
   }
+  if (event.target.matches('input[name="course"]')) {
+    const nextCourse = event.target.value;
+    if (nextCourse === "snack") {
+      caloriesMinInput.value = "150";
+      caloriesMaxInput.value = "350";
+      proteinMinInput.value = "10";
+      proteinMaxInput.value = "30";
+    } else if (previousCourse === "snack"
+      && caloriesMinInput.value === "150"
+      && caloriesMaxInput.value === "350"
+      && proteinMinInput.value === "10"
+      && proteinMaxInput.value === "30") {
+      caloriesMinInput.value = "550";
+      caloriesMaxInput.value = "750";
+      proteinMinInput.value = "35";
+      proteinMaxInput.value = "55";
+    }
+    previousCourse = nextCourse;
+    updateControls();
+    return;
+  }
   updateAvailableCount();
   renderSearchResults();
 });
@@ -781,6 +1089,35 @@ document.querySelector("#save-recipe").addEventListener("click", toggleSave);
 document.querySelector("#copy-list").addEventListener("click", copyIngredients);
 document.querySelector("#print-recipe").addEventListener("click", printCurrentRecipe);
 document.querySelector("#download-pdf").addEventListener("click", downloadCurrentRecipePdf);
+allergenToggle.addEventListener("click", () => {
+  const expanded = allergenToggle.getAttribute("aria-expanded") === "true";
+  allergenToggle.setAttribute("aria-expanded", String(!expanded));
+  allergenPanel.hidden = expanded;
+});
+
+document.querySelectorAll("[data-planner-mode]").forEach((button) => {
+  button.addEventListener("click", () => setPlannerMode(button.dataset.plannerMode));
+});
+generatePlanButton.addEventListener("click", generatePlannerPlan);
+plannerResult.addEventListener("click", (event) => {
+  const allergenButton = event.target.closest("[data-plan-allergens]");
+  if (allergenButton) {
+    const panel = document.getElementById(allergenButton.dataset.planAllergens);
+    const expanded = allergenButton.getAttribute("aria-expanded") === "true";
+    allergenButton.setAttribute("aria-expanded", String(!expanded));
+    if (panel) panel.hidden = expanded;
+    return;
+  }
+
+  const recipeButton = event.target.closest("[data-open-plan-recipe]");
+  if (!recipeButton) return;
+  const meal = plannerMealCache.get(recipeButton.dataset.openPlanRecipe);
+  if (!meal) return;
+  renderMeal(meal);
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  document.querySelector("#recipe-title").focus({ preventScroll: true });
+});
 
 document.querySelector("#serving-minus").addEventListener("click", () => {
   servings = clamp(servings - 1, 1, 8);
@@ -796,6 +1133,7 @@ document.querySelector("#serving-plus").addEventListener("click", () => {
 
 document.querySelector("#reset-config").addEventListener("click", () => {
   form.reset();
+  previousCourse = "all";
   saveEnergyPreferences();
   updateControls();
   showRecipePlaceholder();
@@ -847,3 +1185,4 @@ restoreEnergyPreferences();
 updateControls();
 updateSavedList();
 showRecipePlaceholder();
+setPlannerMode("day");
