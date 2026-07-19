@@ -524,12 +524,10 @@ function generateMeal(preferredId, shouldScroll = false) {
         ? document.querySelector("#recipe-title")
         : document.querySelector("#no-result-title");
       focusTarget.focus({ preventScroll: true });
-      if (window.innerWidth < 861) {
-        const reducedMotion = window.matchMedia
-          ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          : false;
-        resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-      }
+      const reducedMotion = window.matchMedia
+        ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        : false;
+      resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     }
   }, 260);
 }

@@ -1422,6 +1422,7 @@ input[type="range"]::-moz-range-thumb {
 
 .result-area {
   min-width: 0;
+  scroll-margin-top: 18px;
 }
 
 .recipe-placeholder {
