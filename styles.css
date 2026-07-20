@@ -3113,8 +3113,8 @@ footer small {
   font-size: 12px;
 }
 
-.experience-mode-switch strong { align-self: end; color: inherit; font-size: 9.5px; }
-.experience-mode-switch small { align-self: start; font-size: 7px; }
+.experience-mode-switch strong { align-self: end; color: inherit; font-size: 13px; line-height: 1.05; letter-spacing: -.015em; }
+.experience-mode-switch small { align-self: start; font-size: 9px; line-height: 1.15; }
 .experience-mode-switch button:hover { color: var(--ink); transform: translateY(-1px); }
 .experience-mode-switch button[aria-pressed="true"] { color: var(--ink); background: var(--paper); box-shadow: 0 7px 20px rgba(16, 16, 16, .1); }
 .experience-mode-switch button[data-app-mode="planner"][aria-pressed="true"] > span { color: var(--paper); background: var(--orange); }
@@ -3349,8 +3349,8 @@ body.fridge-mode .builder-layout.has-fridge-recipe .result-area { width: 100%; }
   .experience-mode-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .experience-mode-switch button { min-height: 44px; grid-template-columns: 24px minmax(0, 1fr); column-gap: 5px; padding: 5px 6px; }
   .experience-mode-switch button > span { width: 24px; height: 24px; font-size: 10px; }
-  .experience-mode-switch strong { overflow: hidden; font-size: 8.5px; text-overflow: ellipsis; white-space: nowrap; }
-  .experience-mode-switch small { font-size: 6.5px; }
+  .experience-mode-switch strong { overflow: hidden; font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap; }
+  .experience-mode-switch small { font-size: 7.75px; }
   .fridge-section { padding: 27px 18px; border-radius: 24px; }
   .fridge-heading h2 { font-size: 38px; }
   .fridge-symbol { width: 49px; height: 49px; border-radius: 16px; font-size: 22px; }
