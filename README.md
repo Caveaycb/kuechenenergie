@@ -19,6 +19,10 @@ Gericht eines gespeicherten Plans lässt sich von dort wieder als vollständiges
 Rezept mit den zugehörigen Mengen und Zubereitungsschritten öffnen. Allergene werden
 bewusst erst in der geöffneten Rezeptkarte per Knopfdruck ausgewiesen.
 
+Auch Tagespläne lassen sich lokal speichern. Die Merkliste bündelt Einzelrezepte,
+Tagespläne und Wochenpläne in drei getrennten Bereichen; gespeicherte Gerichte aus
+den Plänen können von dort wieder geöffnet oder als Einkaufsliste ausgegeben werden.
+
 Aus jedem Tages- oder Wochenplan entsteht auf Knopfdruck eine automatisch
 zusammengefasste Einkaufsliste. Gleiche Zutaten werden addiert, nach
 Supermarktbereichen gruppiert und auf bis zu sechs Personen skaliert; die Liste kann

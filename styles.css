@@ -2854,7 +2854,7 @@ footer small {
 }
 
 .saved-dialog {
-  width: min(560px, calc(100% - 32px));
+  width: min(760px, calc(100% - 32px));
   max-height: min(720px, calc(100vh - 40px));
   padding: 28px;
   color: var(--ink);
@@ -2877,10 +2877,82 @@ footer small {
   margin-bottom: 25px;
 }
 
+.saved-dialog .dialog-heading p {
+  margin: 5px 0 0;
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+
 .saved-list {
   display: grid;
-  gap: 10px;
+  gap: 18px;
 }
+
+.saved-collection-section {
+  display: grid;
+  gap: 9px;
+}
+
+.saved-collection-section + .saved-collection-section {
+  padding-top: 17px;
+  border-top: 1px solid var(--line);
+}
+
+.saved-collection-title {
+  min-height: 31px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.saved-collection-title > span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  background: var(--ink);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.saved-collection-title h3 { margin: 0; font-size: 13px; }
+.saved-collection-title > strong { min-width: 21px; height: 21px; display: grid; place-items: center; color: var(--paper); background: var(--blue); border-radius: 50%; font-size: 8px; }
+.saved-collection-title > a { margin-left: auto; color: var(--ink-soft); border-bottom: 1px solid currentColor; font-size: 9px; font-weight: 800; text-decoration: none; }
+.saved-collection-content { display: grid; gap: 8px; }
+.saved-section-empty { margin: 0; padding: 15px; color: #7b8381; background: #f3f5f4; border: 1px dashed var(--line); border-radius: 13px; font-size: 9px; text-align: center; }
+
+.saved-plan-collection-card {
+  overflow: hidden;
+  background: #f5f7f6;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.saved-plan-collection-card.is-day { background: #fff8f2; border-color: #ecd8c9; }
+.saved-plan-collection-card.is-week { background: #eef7f8; border-color: #c9e1e5; }
+.saved-plan-collection-heading { display: grid; grid-template-columns: 43px 1fr; gap: 11px; align-items: center; padding: 13px; }
+.saved-plan-collection-heading > span { width: 43px; height: 43px; display: grid; place-items: center; color: var(--paper); background: var(--orange); border-radius: 13px; font-size: 16px; font-weight: 900; }
+.saved-plan-collection-card.is-week .saved-plan-collection-heading > span { background: var(--blue); }
+.saved-plan-collection-heading small, .saved-plan-collection-heading strong, .saved-plan-collection-heading p { display: block; }
+.saved-plan-collection-heading small { margin-bottom: 2px; color: var(--orange-dark); font-size: 7px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.saved-plan-collection-card.is-week .saved-plan-collection-heading small { color: #08708f; }
+.saved-plan-collection-heading strong { font-size: 11px; }
+.saved-plan-collection-heading p { margin: 3px 0 0; color: #6d7673; font-size: 8px; }
+.saved-plan-collection-meals { display: grid; gap: 1px; margin: 0; padding: 0 10px; list-style: none; }
+.saved-plan-collection-meals button { width: 100%; min-height: 38px; display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 5px 8px; color: var(--ink); background: rgba(255, 255, 255, .75); border: 0; border-radius: 9px; text-align: left; }
+.saved-plan-collection-meals button:hover { background: #fff; }
+.saved-plan-collection-meals span { color: var(--orange-dark); font-size: 7px; font-weight: 900; text-transform: uppercase; }
+.saved-plan-collection-meals strong { overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.saved-plan-collection-meals i { font-size: 13px; font-style: normal; }
+.saved-plan-more { margin: 7px 13px 0; color: #74817e; font-size: 8px; }
+.saved-plan-collection-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; padding: 11px 13px 13px; }
+.saved-plan-collection-actions a,
+.saved-plan-collection-actions button { min-height: 32px; display: inline-flex; align-items: center; padding: 0 10px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 999px; font-size: 8px; font-weight: 900; text-decoration: none; }
+.saved-plan-collection-actions a { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.saved-plan-collection-actions button:not(.is-delete):hover { color: #087466; border-color: #087466; }
+.saved-plan-collection-actions .is-delete:hover { color: var(--orange-dark); border-color: var(--orange-dark); }
 
 .saved-empty {
   padding: 45px 20px;

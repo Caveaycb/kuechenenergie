@@ -570,9 +570,9 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10l1 12H6L7 8Zm2 0V6a3 3 0 0 1 6 0v2" /></svg>
               Einkaufsliste
             </button>
-            <button class="button planner-save" id="save-week-plan" type="button" hidden disabled>
+            <button class="button planner-save" id="save-plan" type="button" disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 4v6h8V4M8 17h8" /></svg>
-              Wochenplan speichern
+              <span id="save-plan-label">Tagesplan speichern</span>
             </button>
             <button class="button planner-generate" id="generate-plan" type="button">
               <span aria-hidden="true">⚡</span>
@@ -597,9 +597,9 @@
       <small>624 eigenentwickelte Grundrezepte ohne übernommene Fremdtexte oder Fremdbilder. Nährwerte sind alltagstaugliche Näherungswerte und können je nach Produkt abweichen.</small>
     </footer>
 
-    <dialog class="saved-dialog" id="saved-dialog">
+    <dialog class="saved-dialog" id="saved-dialog" aria-labelledby="saved-title">
       <div class="dialog-heading">
-        <div><span class="step-label">Für später</span><h2>Deine Merkliste</h2></div>
+        <div><span class="step-label">Für später</span><h2 id="saved-title">Deine Merkliste</h2><p>Rezepte und Pläne an einem Ort.</p></div>
         <button class="icon-button" id="close-saved" type="button" aria-label="Merkliste schließen">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
         </button>

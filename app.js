@@ -113,7 +113,8 @@ const allergenList = document.querySelector("#allergen-list");
 const plannerResult = document.querySelector("#planner-result");
 const plannerAnnouncement = document.querySelector("#planner-announcement");
 const generatePlanButton = document.querySelector("#generate-plan");
-const saveWeekPlanButton = document.querySelector("#save-week-plan");
+const savePlanButton = document.querySelector("#save-plan");
+const savePlanLabel = document.querySelector("#save-plan-label");
 const savedWeekCount = document.querySelector("#saved-week-count");
 const builderLayout = document.querySelector("#builder-layout");
 const fridgePanel = document.querySelector("#fridge-mode-panel");
@@ -143,6 +144,7 @@ let shoppingPrintCleanup = null;
 const plannerMealCache = new Map();
 const fridgeIngredients = new Map();
 const SAVED_WEEK_PLANS_KEY = "kuechenenergie-week-plans";
+const SAVED_DAY_PLANS_KEY = "kuechenenergie-day-plans";
 const WEEKDAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
 
 const COMMON_FRIDGE_INGREDIENTS = [
@@ -364,12 +366,30 @@ function openShoppingList() {
     showToast("Bitte zuerst einen Tages- oder Wochenplan erstellen.");
     return;
   }
-  shoppingMeals = plan.days.flatMap((day) => day.meals || []);
-  shoppingTitle = plannerMode === "week" ? "Einkauf für deinen Wochenplan" : "Einkauf für dein Drei-Gänge-Menü";
+  showShoppingList(
+    plan.days.flatMap((day) => day.meals || []),
+    plannerMode === "week" ? "Einkauf für deinen Wochenplan" : "Einkauf für dein Drei-Gänge-Menü"
+  );
+}
+
+function showShoppingList(meals, title) {
+  shoppingMeals = meals;
+  shoppingTitle = title;
   shoppingPeople.value = "1";
   renderShoppingList();
   if (typeof shoppingDialog.showModal === "function") shoppingDialog.showModal();
   else shoppingDialog.setAttribute("open", "");
+}
+
+function openSavedPlanShoppingList(plan) {
+  if (!plan) return;
+  const meals = plan.days.flatMap((day) => (day.meals || []).map((meal) => ({
+    ingredients: Array.isArray(meal.ingredients) && meal.ingredients.length
+      ? meal.ingredients
+      : recipeDatabase.find((recipe) => recipe.id === meal.recipeId)?.ingredients || []
+  })));
+  savedDialog.close();
+  showShoppingList(meals, `Einkauf · ${plan.name || "Gespeicherter Plan"}`);
 }
 
 async function copyShoppingList() {
@@ -974,12 +994,33 @@ function readSavedWeekPlans() {
   }
 }
 
+function readSavedDayPlans() {
+  try {
+    const plans = JSON.parse(localStorage.getItem(SAVED_DAY_PLANS_KEY) || "[]");
+    return Array.isArray(plans) ? plans : [];
+  } catch {
+    return [];
+  }
+}
+
 function writeSavedWeekPlans(plans) {
   try {
     localStorage.setItem(SAVED_WEEK_PLANS_KEY, JSON.stringify(plans));
+    updateSavedList();
     return true;
   } catch {
     showToast("Der Wochenplan konnte in diesem Browser nicht gespeichert werden.");
+    return false;
+  }
+}
+
+function writeSavedDayPlans(plans) {
+  try {
+    localStorage.setItem(SAVED_DAY_PLANS_KEY, JSON.stringify(plans));
+    updateSavedList();
+    return true;
+  } catch {
+    showToast("Der Tagesplan konnte in diesem Browser nicht gespeichert werden.");
     return false;
   }
 }
@@ -996,7 +1037,7 @@ function compactPlanSummary(summary) {
   };
 }
 
-function serializeWeekPlan(plan) {
+function serializePlan(plan, type = "week") {
   const savedAt = new Date();
   const titleDate = new Intl.DateTimeFormat("de-DE", {
     day: "2-digit",
@@ -1005,9 +1046,11 @@ function serializeWeekPlan(plan) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(savedAt);
+  const isWeek = type === "week";
   return {
-    id: `week-${savedAt.getTime()}-${Math.random().toString(36).slice(2, 7)}`,
-    name: `Wochenplan vom ${titleDate}`,
+    id: `${isWeek ? "week" : "day"}-${savedAt.getTime()}-${Math.random().toString(36).slice(2, 7)}`,
+    type: isWeek ? "week" : "day",
+    name: `${isWeek ? "Wochenplan" : "Tagesplan"} vom ${titleDate}`,
     savedAt: savedAt.toISOString(),
     config: {
       caloriesMin: plan.config.caloriesMin,
@@ -1097,6 +1140,26 @@ function restoredWeekMeal(savedMeal, savedPlan) {
   };
 }
 
+function openSavedPlanRecipe(type, planId, dayIndex, mealIndex) {
+  const plans = type === "week" ? readSavedWeekPlans() : readSavedDayPlans();
+  const savedPlan = plans.find((plan) => plan.id === planId);
+  const savedMeal = savedPlan?.days?.[dayIndex]?.meals?.[mealIndex];
+  const meal = savedMeal && restoredWeekMeal(savedMeal, savedPlan);
+  if (!meal) {
+    showToast("Dieses Plan-Rezept ist nicht mehr verfügbar.");
+    return;
+  }
+  savedDialog.close();
+  setAppMode("planner");
+  renderMeal(meal);
+  document.querySelector("#result-announcement").textContent = `${meal.recipe.title} aus deinem gespeicherten ${type === "week" ? "Wochenplan" : "Tagesplan"} wurde geöffnet.`;
+  window.requestAnimationFrame(() => {
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    resultArea.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    document.querySelector("#recipe-title").focus({ preventScroll: true });
+  });
+}
+
 function openRequestedWeekRecipe() {
   const params = new URLSearchParams(window.location.search);
   const planId = params.get("weekPlan");
@@ -1124,22 +1187,24 @@ function updateWeekPlanControls() {
   const plans = readSavedWeekPlans();
   savedWeekCount.textContent = String(plans.length);
   const isWeek = plannerMode === "week";
-  saveWeekPlanButton.hidden = !isWeek;
-  saveWeekPlanButton.disabled = !isWeek || !plannerPlans.week;
+  savePlanButton.disabled = !plannerPlans[plannerMode];
+  savePlanLabel.textContent = isWeek ? "Wochenplan speichern" : "Tagesplan speichern";
   createShoppingListButton.disabled = !plannerPlans[plannerMode];
 }
 
-function saveCurrentWeekPlan() {
-  const plan = plannerPlans.week;
+function saveCurrentPlan() {
+  const plan = plannerPlans[plannerMode];
   if (!plan) {
-    showToast("Bitte zuerst einen Wochenplan erstellen.");
+    showToast(`Bitte zuerst einen ${plannerMode === "week" ? "Wochenplan" : "Tagesplan"} erstellen.`);
     return;
   }
-  const savedPlan = serializeWeekPlan(plan);
-  const plans = [savedPlan, ...readSavedWeekPlans()].slice(0, 20);
-  if (!writeSavedWeekPlans(plans)) return;
+  const savedPlan = serializePlan(plan, plannerMode);
+  const isWeek = plannerMode === "week";
+  const plans = [savedPlan, ...(isWeek ? readSavedWeekPlans() : readSavedDayPlans())].slice(0, 20);
+  const stored = isWeek ? writeSavedWeekPlans(plans) : writeSavedDayPlans(plans);
+  if (!stored) return;
   updateWeekPlanControls();
-  showToast("Wochenplan gespeichert");
+  showToast(`${isWeek ? "Wochenplan" : "Tagesplan"} gespeichert`);
 }
 
 function plannerSummaryMarkup(summary, prefix = "") {
@@ -1322,27 +1387,85 @@ function toggleSave() {
   writeSaved(items.slice(0, 12));
 }
 
-function updateSavedList() {
-  const items = readSaved();
-  document.querySelector("#saved-count").textContent = items.length;
-  const list = document.querySelector("#saved-list");
-  if (!items.length) {
-    list.innerHTML = `<div class="saved-empty"><span>🥄</span><p>Noch nichts gemerkt. Dein nächster Favorit wartet schon.</p></div>`;
-    return;
-  }
-  list.innerHTML = items.map((item) => `
+function savedPlanSummary(plan, type) {
+  const summaries = (plan.days || []).map((day) => day.summary || {});
+  const total = summaries.reduce((result, summary) => {
+    result.kcal += Number(summary.kcal) || 0;
+    result.protein += Number(summary.protein) || 0;
+    return result;
+  }, { kcal: 0, protein: 0 });
+  const divisor = type === "week" ? Math.max(1, summaries.length) : 1;
+  const mealCount = (plan.days || []).reduce((count, day) => count + (day.meals?.length || 0), 0);
+  return {
+    kcal: Math.round(total.kcal / divisor),
+    protein: Math.round(total.protein / divisor),
+    mealCount
+  };
+}
+
+function savedRecipeMarkup(item) {
+  return `
     <article class="saved-item">
-      <span class="saved-item-emoji" aria-hidden="true">${item.emoji}</span>
-      <div><strong>${item.title}</strong><small>${item.calories} kcal · ${item.protein} g Protein${item.energy ? ` · ${formatEnergyNumber(item.energy.kwh)} kWh` : ""}</small></div>
+      <span class="saved-item-emoji" aria-hidden="true">${escapeHtml(item.emoji || "🍽️")}</span>
+      <div><strong>${escapeHtml(item.title)}</strong><small>${Math.round(item.calories)} kcal · ${Math.round(item.protein)} g Protein${item.energy ? ` · ${formatEnergyNumber(item.energy.kwh)} kWh` : ""}</small></div>
       <div class="saved-item-actions">
-        <button type="button" data-load-saved="${item.key}" aria-label="${item.title} öffnen">
+        <button type="button" data-load-saved="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.title)} öffnen">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M14 7l5 5-5 5" /></svg>
         </button>
-        <button type="button" data-remove-saved="${item.key}" aria-label="${item.title} entfernen">
+        <button type="button" data-remove-saved="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.title)} entfernen">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" /></svg>
         </button>
       </div>
-    </article>`).join("");
+    </article>`;
+}
+
+function savedPlanMarkup(plan, type) {
+  const isWeek = type === "week";
+  const summary = savedPlanSummary(plan, type);
+  const meals = (plan.days || []).flatMap((day, dayIndex) => (day.meals || []).map((meal, mealIndex) => ({ meal, dayIndex, mealIndex })));
+  const displayedMeals = isWeek ? meals.slice(0, 3) : meals;
+  return `
+    <article class="saved-plan-collection-card ${isWeek ? "is-week" : "is-day"}">
+      <div class="saved-plan-collection-heading">
+        <span aria-hidden="true">${isWeek ? "7" : "1"}</span>
+        <div><small>${isWeek ? "Wochenplan" : "Tagesplan"}</small><strong>${escapeHtml(plan.name || (isWeek ? "Gespeicherter Wochenplan" : "Gespeicherter Tagesplan"))}</strong><p>${summary.mealCount} Gerichte · ${summary.kcal} kcal · ${summary.protein} g Protein${isWeek ? " im Tagesdurchschnitt" : ""}</p></div>
+      </div>
+      <ul class="saved-plan-collection-meals">
+        ${displayedMeals.map(({ meal, dayIndex, mealIndex }) => `<li><button type="button" data-load-saved-plan-recipe="${escapeHtml(plan.id)}" data-plan-type="${type}" data-day-index="${dayIndex}" data-meal-index="${mealIndex}"><span>${escapeHtml(courseLabel(meal.course))}</span><strong>${escapeHtml(meal.title || "Unbenanntes Gericht")}</strong><i aria-hidden="true">→</i></button></li>`).join("")}
+      </ul>
+      ${isWeek && meals.length > displayedMeals.length ? `<p class="saved-plan-more">+ ${meals.length - displayedMeals.length} weitere Gerichte im vollständigen Wochenplan</p>` : ""}
+      <div class="saved-plan-collection-actions">
+        ${isWeek ? `<a href="wochenplaene.html">Wochenplan öffnen</a>` : ""}
+        <button type="button" data-shopping-saved-plan="${escapeHtml(plan.id)}" data-plan-type="${type}">Einkaufsliste</button>
+        <button class="is-delete" type="button" data-remove-saved-plan="${escapeHtml(plan.id)}" data-plan-type="${type}" aria-label="${isWeek ? "Wochenplan" : "Tagesplan"} entfernen">Entfernen</button>
+      </div>
+    </article>`;
+}
+
+function savedCollectionSection(title, icon, items, content, extra = "") {
+  return `
+    <section class="saved-collection-section">
+      <div class="saved-collection-title"><span aria-hidden="true">${icon}</span><h3>${title}</h3><strong>${items.length}</strong>${extra}</div>
+      <div class="saved-collection-content">${items.length ? content : `<p class="saved-section-empty">Noch keine ${title.toLocaleLowerCase("de-DE")} gespeichert.</p>`}</div>
+    </section>`;
+}
+
+function updateSavedList() {
+  const items = readSaved();
+  const dayPlans = readSavedDayPlans();
+  const weekPlans = readSavedWeekPlans();
+  const totalCount = items.length + dayPlans.length + weekPlans.length;
+  document.querySelector("#saved-count").textContent = totalCount;
+  const list = document.querySelector("#saved-list");
+  if (!totalCount) {
+    list.innerHTML = `<div class="saved-empty"><span>🥄</span><p>Noch nichts gemerkt. Rezepte, Tagespläne und Wochenpläne warten hier auf dich.</p></div>`;
+    return;
+  }
+  list.innerHTML = [
+    savedCollectionSection("Einzelrezepte", "🍽️", items, items.map(savedRecipeMarkup).join("")),
+    savedCollectionSection("Tagespläne", "☀", dayPlans, dayPlans.map((plan) => savedPlanMarkup(plan, "day")).join("")),
+    savedCollectionSection("Wochenpläne", "7", weekPlans, weekPlans.map((plan) => savedPlanMarkup(plan, "week")).join(""), weekPlans.length ? '<a href="wochenplaene.html">Alle ansehen</a>' : "")
+  ].join("");
 }
 
 function applyConfig(config) {
@@ -1585,11 +1708,17 @@ document.querySelectorAll("[data-planner-mode]").forEach((button) => {
   button.addEventListener("click", () => setPlannerMode(button.dataset.plannerMode));
 });
 generatePlanButton.addEventListener("click", generatePlannerPlan);
-saveWeekPlanButton.addEventListener("click", saveCurrentWeekPlan);
+savePlanButton.addEventListener("click", saveCurrentPlan);
 window.addEventListener("storage", (event) => {
-  if (event.key === SAVED_WEEK_PLANS_KEY) updateWeekPlanControls();
+  if ([SAVED_WEEK_PLANS_KEY, SAVED_DAY_PLANS_KEY, "kuechenenergie-saved", "kern-kelle-saved"].includes(event.key)) {
+    updateWeekPlanControls();
+    updateSavedList();
+  }
 });
-window.addEventListener("pageshow", updateWeekPlanControls);
+window.addEventListener("pageshow", () => {
+  updateWeekPlanControls();
+  updateSavedList();
+});
 plannerResult.addEventListener("click", (event) => {
   const recipeButton = event.target.closest("[data-open-plan-recipe]");
   if (!recipeButton) return;
@@ -1647,6 +1776,9 @@ savedDialog.addEventListener("click", (event) => {
   if (event.target === savedDialog) savedDialog.close();
   const loadButton = event.target.closest("[data-load-saved]");
   const removeButton = event.target.closest("[data-remove-saved]");
+  const planRecipeButton = event.target.closest("[data-load-saved-plan-recipe]");
+  const removePlanButton = event.target.closest("[data-remove-saved-plan]");
+  const shoppingPlanButton = event.target.closest("[data-shopping-saved-plan]");
 
   if (loadButton) {
     const item = readSaved().find((saved) => saved.key === loadButton.dataset.loadSaved);
@@ -1660,6 +1792,31 @@ savedDialog.addEventListener("click", (event) => {
   if (removeButton) {
     writeSaved(readSaved().filter((saved) => saved.key !== removeButton.dataset.removeSaved));
     showToast("Aus der Merkliste entfernt");
+  }
+
+  if (planRecipeButton) {
+    openSavedPlanRecipe(
+      planRecipeButton.dataset.planType,
+      planRecipeButton.dataset.loadSavedPlanRecipe,
+      Number(planRecipeButton.dataset.dayIndex),
+      Number(planRecipeButton.dataset.mealIndex)
+    );
+  }
+
+  if (shoppingPlanButton) {
+    const isWeek = shoppingPlanButton.dataset.planType === "week";
+    const plans = isWeek ? readSavedWeekPlans() : readSavedDayPlans();
+    openSavedPlanShoppingList(plans.find((plan) => plan.id === shoppingPlanButton.dataset.shoppingSavedPlan));
+  }
+
+  if (removePlanButton) {
+    const isWeek = removePlanButton.dataset.planType === "week";
+    const plans = (isWeek ? readSavedWeekPlans() : readSavedDayPlans())
+      .filter((plan) => plan.id !== removePlanButton.dataset.removeSavedPlan);
+    if (isWeek) writeSavedWeekPlans(plans);
+    else writeSavedDayPlans(plans);
+    updateWeekPlanControls();
+    showToast(`${isWeek ? "Wochenplan" : "Tagesplan"} entfernt`);
   }
 });
 
