@@ -6,8 +6,8 @@
   eigener Zutatenliste, passender Zubereitung und dokumentierter Herkunft.
 - Änderungen an Portionsbasis, Proteinmenge oder Energiebeilage sind
   **adaptive Varianten** und werden nicht als neue Grundrezepte gezählt.
-- Der Katalog umfasst 624 Grundrezepte: 105 Vorspeisen, 395 Hauptgerichte,
-  100 Desserts und 24 schnelle Snacks. 31 davon gehören zum separat
+- Der Katalog umfasst 648 Grundrezepte: 111 Vorspeisen, 407 Hauptgerichte,
+  106 Desserts und 24 schnelle Snacks. 55 davon gehören zum separat
   recherchierten Küchenstil **Typisch sächsisch**.
 
 ## Automatische Qualitätsprüfung
@@ -41,7 +41,7 @@ verantwortliche Person folgende Punkte bestätigt hat:
 7. Geschmack, Konsistenz und Anrichtung wurden plausibilisiert.
 8. Makro-Varianten passen kulinarisch zum Grundgericht.
 
-Der Status aller 624 Rezepte lautet zunächst `pending`. Menschliche
+Der Status aller 648 Rezepte lautet zunächst `pending`. Menschliche
 Freigaben sollen mit Datum, Kürzel und optionaler Änderungsnotiz dokumentiert
 werden.
 
@@ -59,9 +59,9 @@ werden.
 
 ## Geplanter Ausbau
 
-1. Die 624 Grundrezepte technisch prüfen und nach Rezeptfamilie stichprobenartig
+1. Die 648 Grundrezepte technisch prüfen und nach Rezeptfamilie stichprobenartig
    nachkochen.
-2. Die 31 sächsischen Rezepte mit regionalen Fachleuten oder Gastronomiebetrieben
+2. Die 55 sächsischen Rezepte mit regionalen Fachleuten oder Gastronomiebetrieben
    abgleichen.
 3. Nutzungsdaten und Rückmeldungen nach Rezeptfamilie auswerten.
 4. Schwache oder missverständliche Gerichte vor jedem weiteren Ausbau ersetzen.

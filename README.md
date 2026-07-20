@@ -2,12 +2,12 @@
 
 **Online ausprobieren:** [caveaycb.github.io/kuechenenergie](https://caveaycb.github.io/kuechenenergie/)
 
-Ein responsiver Mahlzeiten-Konfigurator im eins-energie-Look mit 624 eigenständigen
-Grundrezepten und 24.960 möglichen Makro-Anpassungen. Aus Kalorien- und
+Ein responsiver Mahlzeiten-Konfigurator im eins-energie-Look mit 648 eigenständigen
+Grundrezepten und 25.920 möglichen Makro-Anpassungen. Aus Kalorien- und
 Proteinspanne, Gang, Ernährungsweise, Küchenstil, Zeitlimit und Ausschlüssen entsteht
 ein vollständiges Rezept mit Zutatenliste und Zubereitung. Der Katalog enthält
-105 Vorspeisen, 395 Hauptspeisen, 100 Desserts und 24 schnelle Snacks. Dazu gehören
-31 separat recherchierte Gerichte im Küchenstil „Typisch sächsisch“. Die Gerichte verwenden
+111 Vorspeisen, 407 Hauptspeisen, 106 Desserts und 24 schnelle Snacks. Dazu gehören
+55 separat recherchierte Gerichte im Küchenstil „Typisch sächsisch“. Die Gerichte verwenden
 überwiegend alltagstaugliche Zutaten aus deutschen Supermärkten.
 
 Ein Tagesplaner kombiniert Vorspeise, Hauptspeise und Dessert zu einem

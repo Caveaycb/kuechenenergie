@@ -49,13 +49,13 @@ function mostSimilar(getValues) {
   return result;
 }
 
-assert.strictEqual(raw.length, 624, "Der erweiterte Katalog muss exakt 624 Grundrezepte enthalten.");
-assert.strictEqual(recipes.length, 624, "Alle 624 Grundrezepte müssen die automatische Qualitätsprüfung bestehen.");
-assert.deepStrictEqual(groupedCount("course"), { starter: 105, main: 395, dessert: 100, snack: 24 });
-assert.strictEqual(new Set(recipes.map((recipe) => recipe.id)).size, 624, "Rezept-IDs müssen eindeutig sein.");
-assert.strictEqual(new Set(recipes.map((recipe) => recipe.title.toLocaleLowerCase("de-DE"))).size, 624, "Titel müssen eindeutig sein.");
+assert.strictEqual(raw.length, 648, "Der erweiterte Katalog muss exakt 648 Grundrezepte enthalten.");
+assert.strictEqual(recipes.length, 648, "Alle 648 Grundrezepte müssen die automatische Qualitätsprüfung bestehen.");
+assert.deepStrictEqual(groupedCount("course"), { starter: 111, main: 407, dessert: 106, snack: 24 });
+assert.strictEqual(new Set(recipes.map((recipe) => recipe.id)).size, 648, "Rezept-IDs müssen eindeutig sein.");
+assert.strictEqual(new Set(recipes.map((recipe) => recipe.title.toLocaleLowerCase("de-DE"))).size, 648, "Titel müssen eindeutig sein.");
 assert.ok(new Set(recipes.map((recipe) => recipe.family)).size >= 70, "Der Katalog benötigt mindestens 70 Zubereitungsfamilien.");
-assert.strictEqual(recipes.filter((recipe) => recipe.cuisine === "saechsisch").length, 31, "Die sächsische Kategorie muss inklusive Snack 31 eigene Grundrezepte enthalten.");
+assert.strictEqual(recipes.filter((recipe) => recipe.cuisine === "saechsisch").length, 55, "Die sächsische Kategorie muss inklusive Snack 55 eigene Grundrezepte enthalten.");
 
 recipes.forEach((recipe) => {
   assert.strictEqual(recipe.quality.passed, true, `${recipe.title}: Qualitätsprüfung fehlgeschlagen.`);
