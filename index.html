@@ -33,21 +33,6 @@
     </header>
 
     <main id="top">
-      <section class="experience-mode" aria-labelledby="experience-mode-title">
-        <div>
-          <span class="mode-kicker">Was möchtest du heute?</span>
-          <h2 id="experience-mode-title">Dein Weg zum passenden Rezept</h2>
-        </div>
-        <div class="experience-mode-switch" role="group" aria-label="Küchenenergie-Modus wählen">
-          <button type="button" data-app-mode="planner" aria-pressed="true">
-            <span aria-hidden="true">⚡</span><strong>Rezeptmodus</strong><small>Ziele &amp; Makros</small>
-          </button>
-          <button type="button" data-app-mode="fridge" aria-pressed="false">
-            <span aria-hidden="true">❄</span><strong>Kühlschrankmodus</strong><small>Kochen mit Vorräten</small>
-          </button>
-        </div>
-      </section>
-
       <section class="intro hero-banner" aria-labelledby="page-title">
         <div class="hero-copy">
           <p class="eyebrow"><span></span> #einsvoraus auf dem Teller</p>
@@ -96,11 +81,26 @@
         </div>
       </section>
 
+      <section class="experience-mode" aria-labelledby="experience-mode-title">
+        <div class="experience-mode-copy">
+          <span class="mode-kicker">Dein Einstieg</span>
+          <h2 id="experience-mode-title">Wie möchtest du heute kochen?</h2>
+        </div>
+        <div class="experience-mode-switch" role="group" aria-label="Küchenenergie-Modus wählen">
+          <button type="button" data-app-mode="planner" aria-pressed="true">
+            <span aria-hidden="true">⚡</span><strong>Rezeptmodus</strong><small>Ziele &amp; Makros</small>
+          </button>
+          <button type="button" data-app-mode="fridge" aria-pressed="false">
+            <span aria-hidden="true">❄</span><strong>Kühlschrankmodus</strong><small>Kochen mit Vorräten</small>
+          </button>
+        </div>
+      </section>
+
       <section class="fridge-section" id="fridge-mode-panel" aria-labelledby="fridge-title" hidden>
         <div class="fridge-heading">
           <div>
             <p class="section-kicker">DEIN VORRAT · DEIN REZEPT</p>
-            <h1 id="fridge-title">Was gibt dein Kühlschrank her?</h1>
+            <h2 id="fridge-title">Was gibt dein Kühlschrank her?</h2>
             <p>Trage ein, was schon da ist. Küchenenergie zeigt dir passende Gerichte und was dafür eventuell noch fehlt.</p>
           </div>
           <span class="fridge-symbol" aria-hidden="true">❄</span>

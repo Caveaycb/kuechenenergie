@@ -30,7 +30,8 @@ abgehakt, kopiert und gedruckt werden. Auch gespeicherte Wochenpläne bieten die
 Funktion auf ihrer Archivseite.
 
 Als zweiter, zentraler Einstieg steht ein Kühlschrankmodus bereit. Er wechselt die
-gesamte Oberfläche in ein eigenes kühles Farbsystem und reduziert die Bedienung auf
+Oberfläche in eine eigenständige Variante aus den eins-CD-Farben Blau, Orange,
+Rot, Schwarz und Weiß und reduziert die Bedienung auf
 eine Zutaten-Suche sowie typische, direkt anwählbare Vorräte. Die Treffer werden
 danach sortiert, wie viele vorhandene Zutaten sie verwenden, und nennen knapp, was
 für das vollständige Gericht noch hilfreich wäre.
