@@ -146,23 +146,42 @@ const SAVED_DAY_PLANS_KEY = "kuechenenergie-day-plans";
 const WEEKDAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
 
 const COMMON_FRIDGE_INGREDIENTS = [
-  "Kartoffeln", "Reis", "Nudeln", "Eier", "Tomaten", "Paprika", "Zucchini",
-  "Möhren", "Zwiebeln", "Brokkoli", "Spinat", "Hähnchen", "Hackfleisch",
-  "Lachs", "Quark", "Joghurt", "Käse", "Tofu", "Linsen", "Haferflocken"
+  "Kartoffeln", "Reis", "Nudeln", "Haferflocken", "Vollkornbrot", "Couscous",
+  "Eier", "Hähnchen", "Putenbrust", "Hackfleisch", "Lachs", "Thunfisch",
+  "Tofu", "Linsen", "Kichererbsen", "Bohnen", "Quark", "Joghurt", "Käse", "Milch",
+  "Tomaten", "Paprika", "Zucchini", "Möhren", "Zwiebeln", "Knoblauch", "Brokkoli",
+  "Blumenkohl", "Spinat", "Erbsen", "Champignons", "Gurken", "Lauch",
+  "Frühlingszwiebeln", "Mais", "Kürbis", "Auberginen", "Kohl", "Äpfel", "Zitronen",
+  "Petersilie", "Gemüsebrühe", "Rapsöl", "Mandeln"
 ];
 
 const FRIDGE_ALIASES = {
   kartoffeln: ["kartoffel"],
   reis: ["reis"],
   nudeln: ["nudel", "pasta", "spaghetti"],
+  vollkornbrot: ["vollkornbrot", "brot", "broetchen", "toast", "knaeckebrot"],
+  couscous: ["couscous"],
   eier: ["ei", "eier", "eiklar"],
+  putenbrust: ["putenbrust", "pute"],
+  thunfisch: ["thunfisch"],
   tomaten: ["tomate", "tomatenmark"],
   paprika: ["paprika"],
   zucchini: ["zucchini"],
   moehren: ["moehre", "karotte"],
   zwiebeln: ["zwiebel"],
+  knoblauch: ["knoblauch"],
   brokkoli: ["brokkoli"],
+  blumenkohl: ["blumenkohl"],
   spinat: ["spinat"],
+  erbsen: ["erbse"],
+  champignons: ["champignon", "pilz"],
+  gurken: ["gurke"],
+  lauch: ["lauch"],
+  fruehlingszwiebeln: ["fruehlingszwiebel"],
+  mais: ["mais"],
+  kuerbis: ["kuerbis"],
+  auberginen: ["aubergine"],
+  kohl: ["kohl"],
   haehnchen: ["haehnchen", "huehnchen"],
   hackfleisch: ["hackfleisch", "rinderhack"],
   lachs: ["lachs"],
@@ -171,6 +190,15 @@ const FRIDGE_ALIASES = {
   kaese: ["kaese", "feta", "mozzarella", "parmesan"],
   tofu: ["tofu"],
   linsen: ["linse"],
+  kichererbsen: ["kichererbse"],
+  bohnen: ["bohne"],
+  milch: ["milch"],
+  aepfel: ["apfel"],
+  zitronen: ["zitrone"],
+  petersilie: ["petersilie"],
+  gemuesebruehe: ["gemuesebruehe", "bruehe"],
+  rapsoel: ["rapsoel"],
+  mandeln: ["mandel"],
   haferflocken: ["haferflock", "hafer"]
 };
 

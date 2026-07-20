@@ -3345,6 +3345,8 @@ body.fridge-mode .builder-layout.has-fridge-recipe .result-area { width: 100%; }
   .fridge-symbol { width: 49px; height: 49px; border-radius: 16px; font-size: 22px; }
   .fridge-search-box { grid-template-columns: 21px minmax(0, 1fr); padding: 9px 11px; }
   .fridge-search-box button { grid-column: 1 / -1; width: 100%; min-height: 43px; }
+  .fridge-common-chips { gap: 5px; }
+  .fridge-common-chips button { min-height: 30px; padding: 0 9px; font-size: 8px; }
   .fridge-results { grid-template-columns: 1fr; }
   .intro { margin-bottom: 36px; }
   .hero-banner { min-height: 0; padding: 31px 23px 22px; border-radius: 27px; }
