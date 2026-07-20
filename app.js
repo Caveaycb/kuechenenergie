@@ -107,8 +107,6 @@ const searchResults = document.querySelector("#search-results");
 const searchStatus = document.querySelector("#search-status");
 const savedDialog = document.querySelector("#saved-dialog");
 const toast = document.querySelector("#toast");
-const allergenToggle = document.querySelector("#allergen-toggle");
-const allergenPanel = document.querySelector("#allergen-panel");
 const allergenList = document.querySelector("#allergen-list");
 const plannerResult = document.querySelector("#planner-result");
 const plannerAnnouncement = document.querySelector("#planner-announcement");
@@ -721,11 +719,9 @@ function allergenText(meal) {
 
 function renderAllergens(meal) {
   const allergens = allergensForMeal(meal);
-  allergenToggle.setAttribute("aria-expanded", "false");
-  allergenPanel.hidden = true;
   document.querySelector("#allergen-count").textContent = allergens.length
-    ? `${allergens.length} ${allergens.length === 1 ? "Hinweis" : "Hinweise"} – zum Öffnen tippen`
-    : "Keine Hauptallergene erkannt – Details öffnen";
+    ? `${allergens.length} erkannt`
+    : "Keine erkannt";
   allergenList.innerHTML = allergens.length
     ? allergens.map((allergen) => `<li>${allergenLabels[allergen] || allergen}</li>`).join("")
     : "<li>Keine automatisch erfassten Hauptallergene</li>";
@@ -1803,11 +1799,6 @@ document.querySelector("#save-recipe").addEventListener("click", toggleSave);
 document.querySelector("#copy-list").addEventListener("click", copyIngredients);
 document.querySelector("#print-recipe").addEventListener("click", printCurrentRecipe);
 document.querySelector("#download-pdf").addEventListener("click", downloadCurrentRecipePdf);
-allergenToggle.addEventListener("click", () => {
-  const expanded = allergenToggle.getAttribute("aria-expanded") === "true";
-  allergenToggle.setAttribute("aria-expanded", String(!expanded));
-  allergenPanel.hidden = expanded;
-});
 
 document.querySelectorAll("[data-planner-mode]").forEach((button) => {
   button.addEventListener("click", () => setPlannerMode(button.dataset.plannerMode));

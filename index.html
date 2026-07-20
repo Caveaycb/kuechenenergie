@@ -8,7 +8,7 @@
       content="Küchenenergie stellt dir alltagstaugliche Fitnessgerichte passend zu deinen Kalorien, Makros und Vorlieben zusammen."
     />
     <title>Küchenenergie – Fitnessküche, die zu dir passt</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=23" />
   </head>
   <body>
     <a class="skip-link" href="#meal-form">Direkt zum Rezept-Konfigurator</a>
@@ -416,15 +416,12 @@
               </p>
 
               <section class="allergen-disclosure" aria-labelledby="allergen-heading">
-                <button class="allergen-toggle" id="allergen-toggle" type="button" aria-expanded="false" aria-controls="allergen-panel">
+                <div class="allergen-overview">
                   <span class="allergen-toggle-icon" aria-hidden="true">i</span>
-                  <span><strong id="allergen-heading">Allergene ausweisen</strong><small id="allergen-count">Angaben zum Rezept öffnen</small></span>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5" /></svg>
-                </button>
-                <div class="allergen-panel" id="allergen-panel" hidden>
+                  <span class="allergen-label"><strong id="allergen-heading">Allergene</strong><small id="allergen-count">Direkt aus den Zutaten</small></span>
                   <ul class="allergen-list" id="allergen-list"></ul>
-                  <p>Automatisch aus den Zutaten abgeleitet. Bitte prüfe bei Allergien zusätzlich immer die Angaben auf den verwendeten Packungen.</p>
                 </div>
+                <p>Automatisch aus den Zutaten abgeleitet. Bei Allergien bitte zusätzlich die Packungsangaben prüfen.</p>
               </section>
 
               <section class="energy-insight" aria-labelledby="energy-heading">
@@ -633,6 +630,6 @@
     <script src="energy-engine.js"></script>
     <script src="shopping-list.js"></script>
     <script src="pdf-export.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=23"></script>
   </body>
 </html>

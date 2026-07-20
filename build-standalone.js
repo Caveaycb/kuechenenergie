@@ -7,7 +7,7 @@ const styles = fs.readFileSync("styles.css", "utf8");
 function bundlePage(sourceFile, outputFile, replacements = []) {
   const source = fs.readFileSync(sourceFile, "utf8");
   let bundled = source.replace(
-    '<link rel="stylesheet" href="styles.css" />',
+    /<link rel="stylesheet" href="styles\.css(?:\?[^\"]*)?" \/>/,
     `<style>\n${styles}\n</style>`
   );
 
@@ -23,7 +23,8 @@ function bundlePage(sourceFile, outputFile, replacements = []) {
     bundled = bundled.replaceAll(from, to);
   });
 
-  bundled = bundled.replace(/<script src="([^"]+)"><\/script>/g, (tag, file) => {
+  bundled = bundled.replace(/<script src="([^"]+)"><\/script>/g, (tag, sourcePath) => {
+    const file = sourcePath.split("?")[0];
     const script = fs.readFileSync(file, "utf8").replace(/<\/script/gi, "<\\/script");
     return `<script>\n${script}\n</script>`;
   });

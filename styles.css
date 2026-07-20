@@ -2098,61 +2098,48 @@ input[type="range"]::-moz-range-thumb {
 
 .allergen-disclosure {
   margin-top: 12px;
-  overflow: hidden;
-  background: #fffaf6;
-  border: 1px solid #eadfd7;
-  border-radius: 13px;
+  padding: 9px 12px 8px;
+  background: #f7f8f8;
+  border: 1px solid #e1e6e7;
+  border-radius: 11px;
 }
 
-.allergen-toggle {
-  width: 100%;
-  min-height: 55px;
+.allergen-overview {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 11px;
+  grid-template-columns: 22px auto minmax(0, 1fr);
+  gap: 9px;
   align-items: center;
-  padding: 10px 13px;
-  text-align: left;
 }
 
 .allergen-toggle-icon {
-  width: 29px;
-  height: 29px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
-  color: var(--paper);
-  background: var(--orange);
+  color: #b84d27;
+  background: #f6e7df;
   border-radius: 50%;
   font-family: Georgia, serif;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 700;
 }
 
-.allergen-toggle strong,
-.allergen-toggle small { display: block; }
-.allergen-toggle strong { font-size: 12px; }
-.allergen-toggle small { margin-top: 2px; color: #707976; font-size: 10px; }
-.allergen-toggle > svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  transition: transform 180ms ease;
-}
-.allergen-toggle[aria-expanded="true"] > svg { transform: rotate(180deg); }
-.allergen-panel { padding: 0 13px 13px 53px; }
-.allergen-panel[hidden] { display: none; }
+.allergen-label { min-width: 73px; }
+.allergen-label strong,
+.allergen-label small { display: block; }
+.allergen-label strong { font-size: 10px; }
+.allergen-label small { margin-top: 1px; color: #7a8380; font-size: 8px; }
 .allergen-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .allergen-list li {
-  padding: 6px 9px;
-  color: #713c27;
-  background: #f8e4d9;
+  padding: 4px 7px;
+  color: #66483c;
+  background: #fff;
+  border: 1px solid #eadfd9;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 8.5px;
   font-weight: 800;
 }
-.allergen-panel p { margin-top: 9px; color: #737b78; font-size: 9px; line-height: 1.55; }
+.allergen-disclosure > p { margin: 5px 0 0 31px; color: #808885; font-size: 8px; line-height: 1.4; }
 
 .energy-insight {
   margin-top: 26px;
