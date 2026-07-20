@@ -840,6 +840,8 @@ main {
   border-top: 0;
 }
 
+.search-section[hidden] { display: none; }
+
 .search-heading {
   display: flex;
   align-items: flex-start;
