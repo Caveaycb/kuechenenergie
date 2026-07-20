@@ -230,7 +230,9 @@ function renderShoppingList() {
   if (!engine) return;
   const multiplier = Math.max(1, Number(shoppingPeople.value) || 1);
   const groups = engine.aggregate(shoppingMeals, multiplier);
-  shoppingSource.textContent = `${shoppingTitle} · Mengen für ${multiplier} ${multiplier === 1 ? "Person" : "Personen"}`;
+  const pantryCount = groups.find((group) => group.id === "pantry")?.items.length || 0;
+  const shoppingCount = groups.reduce((count, group) => count + group.items.length, 0) - pantryCount;
+  shoppingSource.textContent = `${shoppingTitle} · ${shoppingCount} Einkaufspositionen${pantryCount ? ` + ${pantryCount} Vorratschecks` : ""} · Mengen für ${multiplier} ${multiplier === 1 ? "Person" : "Personen"}`;
   shoppingList.innerHTML = groups.length
     ? engine.markup(groups, "archive-shopping-item")
     : "<p class=\"shopping-empty\">Für diesen Plan sind keine Zutaten verfügbar.</p>";

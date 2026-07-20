@@ -354,7 +354,9 @@ function renderShoppingList() {
   if (!engine) return;
   const multiplier = Math.max(1, Number(shoppingPeople.value) || 1);
   const groups = engine.aggregate(shoppingMeals, multiplier);
-  shoppingSource.textContent = `${shoppingTitle} · Mengen für ${multiplier} ${multiplier === 1 ? "Person" : "Personen"}`;
+  const pantryCount = groups.find((group) => group.id === "pantry")?.items.length || 0;
+  const shoppingCount = groups.reduce((count, group) => count + group.items.length, 0) - pantryCount;
+  shoppingSource.textContent = `${shoppingTitle} · ${shoppingCount} Einkaufspositionen${pantryCount ? ` + ${pantryCount} Vorratschecks` : ""} · Mengen für ${multiplier} ${multiplier === 1 ? "Person" : "Personen"}`;
   shoppingList.innerHTML = groups.length
     ? engine.markup(groups, "planner-shopping-item")
     : "<p class=\"shopping-empty\">Für diesen Plan sind keine Zutaten verfügbar.</p>";
@@ -944,6 +946,85 @@ function selectPlannerMeal(ranking, usedRecipeIds) {
   return selected;
 }
 
+const PLANNER_PANTRY_PATTERN = /salz|pfeffer|wasser|brühe|bruehe|gewürz|gewuerz|paprikapulver|currypulver|zimt|vanille|essig|öl|oel|honig|zucker/;
+
+function plannerIngredientKey(ingredient) {
+  return normalizeSearchText(ingredient?.name)
+    .replace(/^(frische|frischer|frisches|tiefgekuehlte|tiefgekuehlter) /, "")
+    .trim();
+}
+
+function plannerMealIngredientKeys(meal, includePantry = false) {
+  return [...new Set((meal.ingredients || []).map(plannerIngredientKey).filter((key) => (
+    key && (includePantry || !PLANNER_PANTRY_PATTERN.test(key))
+  )))];
+}
+
+function selectShoppingOptimizedMeals(ranking, count, usedRecipeIds, globalBasket) {
+  const selectedMeals = [];
+  const courseBasket = new Set();
+
+  for (let index = 0; index < count; index += 1) {
+    const fresh = ranking.meals.filter((meal) => !usedRecipeIds.has(meal.recipe.id));
+    const candidates = (fresh.length ? fresh : ranking.meals).slice(0, 90);
+    if (!candidates.length) break;
+
+    const ranked = candidates.map((meal) => {
+      const keys = plannerMealIngredientKeys(meal);
+      const globalOverlap = keys.filter((key) => globalBasket.has(key)).length;
+      const courseOverlap = keys.filter((key) => courseBasket.has(key)).length;
+      const newIngredients = keys.length - globalOverlap;
+      const reuseRatio = keys.length ? globalOverlap / keys.length : 0;
+      const simpleAnchorBonus = globalBasket.size ? 0 : Math.max(0, 8 - keys.length) * 3;
+      const score = meal.match
+        - meal.adjustmentScore * 0.12
+        + globalOverlap * 24
+        + courseOverlap * 12
+        + reuseRatio * 34
+        - newIngredients * 13
+        + simpleAnchorBonus
+        + Math.random() * 3;
+      return { meal, keys, score };
+    }).sort((first, second) => second.score - first.score);
+
+    const selected = ranked[0];
+    selectedMeals.push(selected.meal);
+    usedRecipeIds.add(selected.meal.recipe.id);
+    selected.keys.forEach((key) => {
+      globalBasket.add(key);
+      courseBasket.add(key);
+    });
+  }
+
+  return selectedMeals;
+}
+
+function plannerShoppingCounts(days) {
+  const meals = days.flatMap((day) => day.meals);
+  const groups = window.KuechenenergieShopping?.aggregate(meals, 1) || [];
+  if (!groups.length) return { shoppingItemCount: 0, pantryItemCount: 0, shoppingTotalItemCount: 0 };
+  const pantryItemCount = groups.find((group) => group.id === "pantry")?.items.length || 0;
+  const shoppingTotalItemCount = groups.reduce((count, group) => count + group.items.length, 0);
+  return {
+    shoppingItemCount: shoppingTotalItemCount - pantryItemCount,
+    pantryItemCount,
+    shoppingTotalItemCount
+  };
+}
+
+function createShoppingOptimizedWeek(rankings, baseConfig, dayCount) {
+  const usedRecipeIds = new Set();
+  const ingredientBasket = new Set();
+  const mainMeals = selectShoppingOptimizedMeals(rankings.main, dayCount, usedRecipeIds, ingredientBasket);
+  const starterMeals = selectShoppingOptimizedMeals(rankings.starter, dayCount, usedRecipeIds, ingredientBasket);
+  const dessertMeals = selectShoppingOptimizedMeals(rankings.dessert, dayCount, usedRecipeIds, ingredientBasket);
+  const days = Array.from({ length: dayCount }, (_, dayIndex) => {
+    const meals = [starterMeals[dayIndex], mainMeals[dayIndex], dessertMeals[dayIndex]];
+    return { dayIndex, meals, summary: summarizeMenu(meals, baseConfig) };
+  });
+  return { days, ...plannerShoppingCounts(days) };
+}
+
 function summarizeMenu(meals, config) {
   return meals.reduce((summary, meal) => {
     const energy = window.KuechenenergieEnergy?.estimate(meal.recipe, config, 1);
@@ -967,19 +1048,33 @@ function createPlannerPlan(dayCount) {
   };
   if (Object.values(rankings).some((ranking) => !ranking.meals.length)) return null;
 
-  const usedRecipeIds = new Set();
-  const days = Array.from({ length: dayCount }, (_, dayIndex) => {
+  let days;
+  let shoppingCounts = { shoppingItemCount: 0, pantryItemCount: 0, shoppingTotalItemCount: 0 };
+  if (dayCount === 1) {
+    const usedRecipeIds = new Set();
     const meals = [
       selectPlannerMeal(rankings.starter, usedRecipeIds),
       selectPlannerMeal(rankings.main, usedRecipeIds),
       selectPlannerMeal(rankings.dessert, usedRecipeIds)
     ];
-    return { dayIndex, meals, summary: summarizeMenu(meals, baseConfig) };
-  });
+    days = [{ dayIndex: 0, meals, summary: summarizeMenu(meals, baseConfig) }];
+  } else {
+    const candidates = Array.from({ length: 10 }, () => createShoppingOptimizedWeek(rankings, baseConfig, dayCount));
+    const selectedWeek = candidates.sort((first, second) => (
+      first.shoppingItemCount - second.shoppingItemCount
+      || first.shoppingTotalItemCount - second.shoppingTotalItemCount
+    ))[0];
+    days = selectedWeek.days;
+    shoppingCounts = selectedWeek;
+  }
 
   return {
     days,
     config: baseConfig,
+    shoppingOptimized: dayCount > 1,
+    shoppingItemCount: shoppingCounts.shoppingItemCount,
+    pantryItemCount: shoppingCounts.pantryItemCount,
+    shoppingTotalItemCount: shoppingCounts.shoppingTotalItemCount,
     relaxedCuisine: Object.values(rankings).some((ranking) => ranking.relaxedCuisine),
     relaxedTime: Object.values(rankings).some((ranking) => ranking.relaxedTime)
   };
@@ -1052,6 +1147,10 @@ function serializePlan(plan, type = "week") {
     type: isWeek ? "week" : "day",
     name: `${isWeek ? "Wochenplan" : "Tagesplan"} vom ${titleDate}`,
     savedAt: savedAt.toISOString(),
+    shoppingOptimized: Boolean(plan.shoppingOptimized),
+    shoppingItemCount: Number(plan.shoppingItemCount) || 0,
+    pantryItemCount: Number(plan.pantryItemCount) || 0,
+    shoppingTotalItemCount: Number(plan.shoppingTotalItemCount) || 0,
     config: {
       caloriesMin: plan.config.caloriesMin,
       caloriesMax: plan.config.caloriesMax,
@@ -1256,6 +1355,12 @@ function plannerRelaxationMarkup(plan) {
   return `<p class="adaptation-note">Für ein vollständiges Menü wurde ${details} bei einzelnen Gängen behutsam erweitert. Ernährungsweise und Allergenausschlüsse bleiben unverändert.</p>`;
 }
 
+function plannerShoppingOptimizationMarkup(plan) {
+  if (!plan.shoppingOptimized) return "";
+  const pantryCopy = plan.pantryItemCount ? `; ${plan.pantryItemCount} Gewürze und Basics werden nur als Vorratscheck geführt` : "";
+  return `<div class="planner-shopping-note"><span aria-hidden="true">🛒</span><div><strong>Einkaufsoptimiert geplant</strong><p>Hauptzutaten werden über mehrere Tage wiederverwendet. Die komplette Woche kommt aktuell mit ${plan.shoppingItemCount} Einkaufspositionen aus${pantryCopy}.</p></div></div>`;
+}
+
 function renderPlannerPlan() {
   const plan = plannerPlans[plannerMode];
   plannerMealCache.clear();
@@ -1275,7 +1380,7 @@ function renderPlannerPlan() {
     return summary;
   }, { kcal: 0, protein: 0, carbs: 0, fat: 0, time: 0, kwh: 0, cost: 0 });
   const dailyAverage = Object.fromEntries(Object.entries(total).map(([key, value]) => [key, value / 7]));
-  plannerResult.innerHTML = `${plannerSummaryMarkup(dailyAverage, "Ø pro Tag")}${plannerRelaxationMarkup(plan)}
+  plannerResult.innerHTML = `${plannerSummaryMarkup(dailyAverage, "Ø pro Tag")}${plannerShoppingOptimizationMarkup(plan)}${plannerRelaxationMarkup(plan)}
     <div class="week-overview" role="table" aria-label="Wochenplan mit sieben Tagen">
       <div class="week-overview-head" role="row">
         <span role="columnheader">Tag</span><span role="columnheader">Vorspeise</span><span role="columnheader">Hauptspeise</span><span role="columnheader">Dessert</span>
@@ -1299,7 +1404,7 @@ function setPlannerMode(mode) {
   const isWeek = mode === "week";
   document.querySelector("#planner-mode-title").textContent = isWeek ? "Sieben Tage, sieben Menüs" : "Dein Drei-Gänge-Tag";
   document.querySelector("#planner-mode-copy").textContent = isWeek
-    ? "Jeder Tag kombiniert Vorspeise, Hauptspeise und Dessert; Wiederholungen werden möglichst vermieden."
+    ? "Sieben unterschiedliche Menüs, deren Hauptzutaten bewusst mehrfach genutzt werden – für eine kürzere, praktischere Einkaufsliste."
     : "Deine Zielspanne dient als Mahlzeitbasis; daraus entsteht ein realistischer Tagesrahmen im Verhältnis 20 / 60 / 20.";
   document.querySelector("#generate-plan-label").textContent = isWeek ? "Wochenplan erstellen" : "Tagesplan erstellen";
   renderPlannerPlan();

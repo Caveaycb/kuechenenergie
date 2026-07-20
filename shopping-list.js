@@ -2,10 +2,10 @@
   "use strict";
 
   const categories = [
-    { id: "produce", label: "Obst & Gemüse", pattern: /apfel|aprikos|aubergine|banane|beere|birne|brokkoli|blumenkohl|champignon|erbs|gurke|himbeer|ingwer|kirsche|kohl|kuerbis|kürbis|limette|mais|mango|moehre|möhre|orange|paprika(?!pulver)|pilz|salat|spinat|suesskartoffel|süßkartoffel|tomat|zitrone|zucchini|zwiebel|kartoffel|obst/ },
-    { id: "protein", label: "Kühlregal & Protein", pattern: /ei\b|eier|feta|fisch|fleisch|frischkaese|frischkäse|garnele|hack|haehnchen|hähnchen|halloumi|joghurt|kaese|käse|lachs|milch|mozzarella|parmesan|pute|quark|rind|schmand|seelachs|skyr|tofu|thunfisch|butter/ },
+    { id: "produce", label: "Obst & Gemüse", pattern: /apfel|aprikos|aubergine|banane|beere|bete|birne|brokkoli|blumenkohl|champignon|erbs|fenchel|gurke|himbeer|ingwer|kirsche|knoblauch|kohl|kraut|kuerbis|kürbis|limette|mais|mango|moehre|möhre|orange|paprika(?!pulver)|pflaum|pilz|salat|spinat|suesskartoffel|süßkartoffel|tomat|zitrone|zucchini|zwiebel|kartoffel|obst/ },
+    { id: "protein", label: "Protein & Kühlregal", pattern: /bohne|ei\b|eier|feta|fisch|fleisch|frischkaese|frischkäse|garnele|hack|haehnchen|hähnchen|halloumi|joghurt|kaese|käse|lachs|linse|milch|mozzarella|parmesan|proteinpulver|pute|quark|rind|schmand|seelachs|skyr|tofu|thunfisch|butter/ },
     { id: "carbs", label: "Beilagen & Backen", pattern: /brot|brötchen|couscous|flocken|gnocchi|grieß|hafer|mehl|nudel|pasta|reis|semmel|spaetzle|spätzle|toast|tortilla|wrap/ },
-    { id: "pantry", label: "Vorrat & Würzen", pattern: /bruehe|brühe|essig|gewuerz|gewürz|honig|kraeuter|kräuter|mandel|nuss|oel|öl|paprikapulver|petersilie|salz|senf|sesam|sojasauce|vanille|zimt|zucker|kakao|saft/ }
+    { id: "pantry", label: "Vorrat prüfen", pattern: /bruehe|brühe|curry|essig|gewuerz|gewürz|honig|kraeuter|kräuter|mandel|nuss|nuesse|oel|öl|paprikapulver|petersilie|salz|senf|sesam|sojasauce|vanille|zimt|zucker|kakao|saft/ }
   ];
 
   function normalize(value) {

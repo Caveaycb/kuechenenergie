@@ -2680,6 +2680,10 @@ input[type="range"]::-moz-range-thumb {
 .plan-summary strong { color: var(--ink); }
 .plan-summary .plan-summary-label { color: var(--paper); background: var(--ink); }
 .plan-summary .plan-summary-label strong { color: inherit; }
+.planner-shopping-note { display: grid; grid-template-columns: 39px 1fr; gap: 11px; align-items: center; margin: 0 0 18px; padding: 12px 14px; color: #26353c; background: #e8f5fb; border: 1px solid #c3e1ef; border-radius: 14px; }
+.planner-shopping-note > span { width: 39px; height: 39px; display: grid; place-items: center; color: var(--paper); background: var(--blue); border-radius: 12px; font-size: 18px; }
+.planner-shopping-note strong { display: block; color: #006b9e; font-size: 10px; }
+.planner-shopping-note p { margin: 3px 0 0; color: #5f7077; font-size: 9px; line-height: 1.45; }
 .plan-day-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
 .plan-recipe-card { min-width: 0; padding: 18px; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 9px 25px rgba(18, 27, 30, .06); }
 .plan-course { display: flex; gap: 9px; align-items: center; color: var(--orange-dark); font-size: 9px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }

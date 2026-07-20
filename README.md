@@ -19,6 +19,13 @@ Gericht eines gespeicherten Plans lässt sich von dort wieder als vollständiges
 Rezept mit den zugehörigen Mengen und Zubereitungsschritten öffnen. Allergene werden
 bewusst erst in der geöffneten Rezeptkarte per Knopfdruck ausgewiesen.
 
+Die Wochenplanung ist einkaufsoptimiert: Zuerst werden zueinander passende
+Hauptgerichte als Zutatenbasis gewählt, anschließend werden Vorspeisen und Desserts
+nach möglichst hoher Überschneidung ergänzt. Mehrere mögliche Wochen werden intern
+verglichen und nur der Plan mit dem kompaktesten Warenkorb ausgegeben. So bleiben
+alle 21 Rezepte verschieden, während zentrale Zutaten an mehreren Tagen verwendet
+und Gewürze sowie Basiszutaten separat als Vorratscheck geführt werden.
+
 Auch Tagespläne lassen sich lokal speichern. Die Merkliste bündelt Einzelrezepte,
 Tagespläne und Wochenpläne in drei getrennten Bereichen; gespeicherte Gerichte aus
 den Plänen können von dort wieder geöffnet oder als Einkaufsliste ausgegeben werden.
